@@ -1,0 +1,38 @@
+WHITESPACE = _{ " " | "\t" }
+
+split = _{ NEWLINE+ | ";" ~ NEWLINE* }
+
+ident = @{ (LETTER | NUMBER)+ }
+atom = { ident | "(" ~ expr ~ ")" }
+
+pattern = { atom ~ ":" ~ type_ ~ "." ~ expr }
+patterns = { pattern | "{"  ~ (pattern ~ split)+ ~ "}" }
+
+lambda = { "λ" ~ patterns }
+apply = { atom ~ atom+ }
+typed = { atom ~ ":" ~ type_ }
+
+expr = { lambda | apply | typed | atom }
+bind = { ident ~ "=" ~ expr }
+tbind = { ident ~ ":=" ~ instances }
+
+tatom = { ident | "(" ~ typed ~ ")" }
+
+product = { tatom ~ ("×" ~ tatom)* }
+sum = {  product ~ ("+" ~ product)* }
+map = { sum ~ ("→" ~ sum)* }
+type_ = { map }
+
+instance = { ident ~ ":" ~ type_ }
+instances = { instance | "{" ~ (instance ~ split)* ~ "}" }
+
+main = { SOI ~ NEWLINE* ~ ((bind | tbind) ~ split)* ~ EOI }
+
+
+// ℕ := { 0    : nat
+//        succ : nat → nat
+//      }
+
+// plus = λ x : ℕ. λ { (succ y) : ℕ. succ (plus x y)
+//                     0        : ℕ. x
+//                   }
