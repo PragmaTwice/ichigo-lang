@@ -1,17 +1,3 @@
-# Ichigo Lang
-
-![ichigo-logo](doc/logo.png)
-
-*to commemorate those fucking times*
-
-## Intro
-
-- It's trivial, just a toy, used to familiarize with Rust
-- **NO DENPENDENT TYPE**
-
-## Quickview
-
-```ichigo
 ℕ = τ {
     0    : ℕ
     succ : ℕ → ℕ
@@ -31,5 +17,3 @@ plus = λ x : ℕ. λ {
     true  : 𝔹
     false : 𝔹
 }
-
-```

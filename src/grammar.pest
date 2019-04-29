@@ -2,37 +2,32 @@ WHITESPACE = _{ " " | "\t" }
 
 split = _{ NEWLINE+ | ";" ~ NEWLINE* }
 
+line = _{ NEWLINE* }
+
 ident = @{ (LETTER | NUMBER)+ }
 atom = { ident | "(" ~ expr ~ ")" }
 
 pattern = { atom ~ ":" ~ type_ ~ "." ~ expr }
-patterns = { pattern | "{"  ~ (pattern ~ split)+ ~ "}" }
+patterns = { pattern | "{"  ~ line ~ (pattern ~ split)+ ~ "}" }
 
 lambda = { "λ" ~ patterns }
 apply = { atom ~ atom+ }
 typed = { atom ~ ":" ~ type_ }
 
 expr = { lambda | apply | typed | atom }
-bind = { ident ~ "=" ~ expr }
-tbind = { ident ~ ":=" ~ instances }
 
-tatom = { ident | "(" ~ typed ~ ")" }
+tatom = { ident | "(" ~ type_ ~ ")" }
 
-product = { tatom ~ ("×" ~ tatom)* }
-sum = {  product ~ ("+" ~ product)* }
-map = { sum ~ ("→" ~ sum)* }
-type_ = { map }
+map = { tatom ~ ("→" ~ tatom)+ }
 
 instance = { ident ~ ":" ~ type_ }
-instances = { instance | "{" ~ (instance ~ split)* ~ "}" }
+instances = { instance | "{" ~ line ~ (instance ~ split)* ~ "}" }
 
-main = { SOI ~ NEWLINE* ~ ((bind | tbind) ~ split)* ~ EOI }
+typedef = { "τ" ~ instances }
+
+type_ = { typedef | map | tatom }
+
+bind = { ident ~ "=" ~ (!"τ" ~ expr | type_) }
 
 
-// ℕ := { 0    : nat
-//        succ : nat → nat
-//      }
-
-// plus = λ x : ℕ. λ { (succ y) : ℕ. succ (plus x y)
-//                     0        : ℕ. x
-//                   }
+main = { SOI ~ line ~ (bind ~ split)* ~ EOI }
