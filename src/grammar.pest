@@ -4,11 +4,11 @@ split = _{ NEWLINE+ | ";" ~ NEWLINE* }
 
 line = _{ NEWLINE* }
 
-ident = @{ (LETTER | NUMBER)+ }
-atom = { ident | "(" ~ expr ~ ")" }
+ident = @{ (LETTER | NUMBER | SYMBOL)+ }
+atom = { "(" ~ expr ~ ")" | ident }
 
-pattern = { atom ~ ":" ~ type_ ~ "." ~ expr }
-patterns = { pattern | "{"  ~ line ~ (pattern ~ split)+ ~ "}" }
+pattern = { typed ~ "." ~ expr }
+patterns = { "{"  ~ line ~ (pattern ~ split)+ ~ "}" | pattern }
 
 lambda = { "λ" ~ patterns }
 apply = { atom ~ atom+ }
@@ -16,18 +16,18 @@ typed = { atom ~ ":" ~ type_ }
 
 expr = { lambda | apply | typed | atom }
 
-tatom = { ident | "(" ~ type_ ~ ")" }
+tatom = { "(" ~ type_ ~ ")" | ident }
 
 map = { tatom ~ ("→" ~ tatom)+ }
 
 instance = { ident ~ ":" ~ type_ }
-instances = { instance | "{" ~ line ~ (instance ~ split)* ~ "}" }
+instances = { "{" ~ line ~ (instance ~ split)* ~ "}" | instance }
 
-typedef = { "τ" ~ instances }
+sum = { "σ" ~ instances }
 
-type_ = { typedef | map | tatom }
+type_ = { sum | map | tatom }
 
-bind = { ident ~ "=" ~ (!"τ" ~ expr | type_) }
+bind = { ident ~ "=" ~ (!"σ" ~ expr | type_) }
 
 
 main = { SOI ~ line ~ (bind ~ split)* ~ EOI }
