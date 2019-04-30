@@ -4,7 +4,7 @@ split = _{ NEWLINE+ | ";" ~ NEWLINE* }
 
 line = _{ NEWLINE* }
 
-ident = @{ (LETTER | NUMBER | SYMBOL)+ }
+ident = @{ (!("λ" | "σ") ~ LETTER | NUMBER | !("=" | "→") ~ SYMBOL)+ }
 atom = { "(" ~ expr ~ ")" | ident }
 
 pattern = { typed ~ "." ~ expr }
