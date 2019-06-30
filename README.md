@@ -9,6 +9,11 @@
 - It's trivial, just a toy, used to familiarize with Rust
 - **NO DEPENDENT TYPE**
 
+## Quickstart
+```sh
+cargo run example/hello.ichigo
+```
+
 ## Quickview
 
 ```ichigo
@@ -35,9 +40,4 @@ take = λ {
     }
 }
 
-```
-
-## Quickstart
-```sh
-cargo run example/hello.ichigo
 ```
