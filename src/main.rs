@@ -1,5 +1,7 @@
 mod syntax;
 
+mod check;
+
 mod cli;
 
 #[cfg(test)]
