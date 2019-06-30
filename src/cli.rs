@@ -1,4 +1,4 @@
-use super::parser::*;
+use super::syntax::parser;
 use std::env;
 
 pub fn parse_option() {
@@ -9,7 +9,7 @@ pub fn parse_option() {
     let _program_path = arg_iter.next();
 
     match arg_iter.next() {
-        Some(x) => println!("{:#?}", parse_file(x)),
+        Some(x) => println!("{:#?}", parser::parse_file(x)),
         None => println!("no file path.")
     }
 }

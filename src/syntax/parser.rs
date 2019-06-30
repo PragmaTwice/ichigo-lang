@@ -6,7 +6,7 @@ use std::fs;
 use super::ast::*;
 
 #[derive(Parser)]
-#[grammar = "grammar.pest"]
+#[grammar = "syntax/grammar.pest"]
 struct IchigoParser;
 
 pub fn parse_file(filename: &str) -> Main {
