@@ -3,13 +3,15 @@ use pest_derive::Parser;
 use pest::iterators::Pair;
 use std::fs;
 
+use super::ast::*;
+
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
 struct IchigoParser;
 
 pub fn parse_file(filename: &str) {
     let contents = fs::read_to_string(filename)
-        .expect("Something went wrong reading the file");
+        .expect("something went wrong while reading the file");
 
     parse_str(contents.as_str());
 }
@@ -20,13 +22,43 @@ pub fn parse_str(input: &str) {
         .next()
         .unwrap();
 
-    parse_value(pair);
+    parse_main(pair);
 }
 
-fn parse_value(pair: Pair<Rule>) {
+fn parse_main(pair: Pair<Rule>) -> Vec<Bind> {
     match pair.as_rule() {
-        Rule::main => pair.into_inner().map(|inner_pair| parse_value(inner_pair)).collect(),
-        Rule::bind => println!("bind: {}", pair.as_str()),
-        _ => ()
+        Rule::main => pair
+            .into_inner()
+            .map(|inner_pair| parse_bind(inner_pair).unwrap())
+            .collect(),
+        _ => unreachable!()
     }
+}
+
+fn parse_bind(pair: Pair<Rule>) -> Bind {
+    match pair.as_rule() {
+        Rule::bind => {
+            let mut inner = pair.into_inner();
+            let ident = Ident { 
+                name : inner.next().unwrap().as_str().to_string()
+            };
+            let binded = inner.next().unwrap();
+
+            match binded.as_rule() {
+                Rule::expr => Bind::Expr(ident, Box::new(parse_expr(binded).unwrap())),
+                Rule::type_ => Bind::Type(ident, Box::new(parse_type(binded).unwrap())),
+
+                _ => unreachable!()
+            }
+        },
+        _ => unreachable!()
+    }
+}
+
+fn parse_expr(pair: Pair<Rule>) -> Expr {
+    unreachable!()
+}
+
+fn parse_type(pair: Pair<Rule>) -> Type {
+    unreachable!()
 }
