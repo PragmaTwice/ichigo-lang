@@ -35,3 +35,5 @@ pub enum Bind {
     Expr(Ident, Box<Expr>),
     Type(Ident, Box<Type>)
 }
+
+pub type Main = Vec<Bind>;

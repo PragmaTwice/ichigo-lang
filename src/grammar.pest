@@ -25,7 +25,7 @@ instances = { "{" ~ line ~ (instance ~ split)* ~ "}" | instance }
 
 sum = { "σ" ~ instances }
 
-type_ = { sum | map }
+type_ = { sum | map | tatom }
 
 bind = { ident ~ "=" ~ (!"σ" ~ expr | type_) }
 
