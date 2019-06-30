@@ -4,6 +4,8 @@
 
 *to commemorate those fucking times*
 
+[![Build Status](https://travis-ci.com/PragmaTwice/ichigo-lang.svg?branch=master)](https://travis-ci.com/PragmaTwice/ichigo-lang)
+
 ## Intro
 
 - It's trivial, just a toy, used to familiarize with Rust
