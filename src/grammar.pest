@@ -11,7 +11,7 @@ pattern = { typed ~ "." ~ expr }
 patterns = { "{"  ~ line ~ (pattern ~ split)+ ~ "}" | pattern }
 
 lambda = { "λ" ~ patterns }
-apply = { atom ~ apply? }
+apply = { atom ~ atom+ }
 typed = { atom ~ ":" ~ type_ }
 
 expr = { lambda | apply | typed | atom }

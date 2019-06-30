@@ -133,11 +133,8 @@ fn parse_apply(pair: Pair<Rule>) -> Expr {
         Rule::apply => {
             let mut inner = pair.into_inner();
             let first = inner.next().unwrap();
-            let second = inner.next();
-            match second {
-                Some(x) => Expr::Apply(Box::new(parse_expr(first)), Box::new(parse_apply(x))),
-                None => parse_expr(first)
-            }
+
+            inner.fold(parse_expr(first), |acc, x| Expr::Apply(Box::new(acc), Box::new(parse_expr(x))))
         },
 
         _ => unreachable!()
