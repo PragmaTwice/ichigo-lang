@@ -29,7 +29,7 @@ fn parse_main(pair: Pair<Rule>) -> Vec<Bind> {
     match pair.as_rule() {
         Rule::main => pair
             .into_inner()
-            .map(|inner_pair| parse_bind(inner_pair).unwrap())
+            .map(|inner_pair| parse_bind(inner_pair))
             .collect(),
         _ => unreachable!()
     }
@@ -45,8 +45,8 @@ fn parse_bind(pair: Pair<Rule>) -> Bind {
             let binded = inner.next().unwrap();
 
             match binded.as_rule() {
-                Rule::expr => Bind::Expr(ident, Box::new(parse_expr(binded).unwrap())),
-                Rule::type_ => Bind::Type(ident, Box::new(parse_type(binded).unwrap())),
+                Rule::expr => Bind::Expr(ident, Box::new(parse_expr(binded))),
+                Rule::type_ => Bind::Type(ident, Box::new(parse_type(binded))),
 
                 _ => unreachable!()
             }
