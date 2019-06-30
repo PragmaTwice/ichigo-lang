@@ -36,3 +36,8 @@ take = λ {
 }
 
 ```
+
+## Quickstart
+```sh
+cargo run example/hello.ichigo
+```

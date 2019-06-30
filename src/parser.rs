@@ -9,20 +9,20 @@ use super::ast::*;
 #[grammar = "grammar.pest"]
 struct IchigoParser;
 
-pub fn parse_file(filename: &str) {
+pub fn parse_file(filename: &str) -> Main {
     let contents = fs::read_to_string(filename)
         .expect("something went wrong while reading the file");
 
-    parse_str(contents.as_str());
+    parse_str(contents.as_str())
 }
 
-pub fn parse_str(input: &str) {
+pub fn parse_str(input: &str) -> Main {
     let pair = IchigoParser::parse(Rule::main, input)
         .unwrap_or_else(|e| panic!("{}", e))
         .next()
         .unwrap();
 
-    println!("{:#?}", parse_main(pair));
+    parse_main(pair)
 }
 
 fn parse_main(pair: Pair<Rule>) -> Main {

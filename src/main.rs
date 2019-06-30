@@ -1,6 +1,7 @@
 mod parser;
 mod ast;
+mod cli;
 
 fn main() {
-    parser::parse_file("example/hello.ichigo");
+    cli::parse_option();
 }
