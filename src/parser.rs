@@ -22,14 +22,14 @@ pub fn parse_str(input: &str) {
         .next()
         .unwrap();
 
-    parse_main(pair);
+    println!("{:#?}", parse_main(pair));
 }
 
 fn parse_main(pair: Pair<Rule>) -> Main {
     match pair.as_rule() {
         Rule::main => pair
             .into_inner()
-            .map(|inner_pair| parse_bind(inner_pair))
+            .filter_map(|inner_pair| parse_bind(inner_pair))
             .collect(),
         
         _ => unreachable!()
@@ -46,16 +46,45 @@ fn parse_ident(pair: Pair<Rule>) -> Ident {
     }
 }
 
-fn parse_bind(pair: Pair<Rule>) -> Bind {
+fn parse_bind(pair: Pair<Rule>) -> Option<Bind> {
     match pair.as_rule() {
         Rule::bind => {
             let mut inner = pair.into_inner();
             let ident = parse_ident(inner.next().unwrap());
             let binded = inner.next().unwrap();
 
-            match binded.as_rule() {
+            Some(match binded.as_rule() {
                 Rule::expr => Bind::Expr(ident, Box::new(parse_expr(binded))),
                 Rule::type_ => Bind::Type(ident, Box::new(parse_type(binded))),
+
+                _ => unreachable!()
+            })
+        },
+
+        Rule::EOI => None,
+
+        _ => unreachable!()
+    }
+}
+
+fn parse_expr(pair: Pair<Rule>) -> Expr {
+    match pair.as_rule() {
+        Rule::expr => {
+            let inner = pair.into_inner().peek().unwrap();
+            match inner.as_rule() {
+                Rule::lambda => parse_lambda(inner),
+                Rule::apply => parse_apply(inner),
+                Rule::typed => parse_typed(inner),
+                Rule::atom => parse_expr(inner),
+
+                _ => unreachable!()
+            }
+        },
+        Rule::atom => {
+            let inner = pair.into_inner().peek().unwrap();
+            match inner.as_rule() {
+                Rule::expr => parse_expr(inner),
+                Rule::ident => Expr::Var(parse_ident(inner)),
 
                 _ => unreachable!()
             }
@@ -65,8 +94,68 @@ fn parse_bind(pair: Pair<Rule>) -> Bind {
     }
 }
 
-fn parse_expr(pair: Pair<Rule>) -> Expr {
-    unreachable!()
+fn parse_lambda(pair: Pair<Rule>) -> Expr {
+    match pair.as_rule() {
+        Rule::lambda => {
+            let inner = pair.into_inner().peek().unwrap();
+            match inner.as_rule() {
+                Rule::patterns => {
+                    let mut patterns = Vec::new();
+                    let innerer = inner.into_inner().peek().unwrap();
+                    match innerer.as_rule() {
+                        Rule::pattern => {
+                            let mut innererer = innerer.into_inner();
+                            let param = innererer.next().unwrap();
+                            let expr = innererer.next().unwrap();
+
+                            patterns.push(Pattern{
+                                param: Box::new(parse_typed(param)), 
+                                expr: Box::new(parse_expr(expr))
+                            });
+                        },
+
+                        _ => unreachable!()
+                    };
+
+                    Expr::Lambda(patterns)
+                },
+
+                _ => unreachable!()
+            }
+        },
+
+        _ => unreachable!()
+    }
+}
+
+fn parse_apply(pair: Pair<Rule>) -> Expr {
+    match pair.as_rule() {
+        Rule::apply => {
+            let mut inner = pair.into_inner();
+            let first = inner.next().unwrap();
+            let second = inner.next();
+            match second {
+                Some(x) => Expr::Apply(Box::new(parse_expr(first)), Box::new(parse_apply(x))),
+                None => parse_expr(first)
+            }
+        },
+
+        _ => unreachable!()
+    }
+}
+
+fn parse_typed(pair: Pair<Rule>) -> Expr {
+    match pair.as_rule() {
+        Rule::typed => {
+            let mut inner = pair.into_inner();
+            let expr = inner.next().unwrap();
+            let type_ = inner.next().unwrap();
+
+            Expr::Typed(Box::new(parse_expr(expr)), Box::new(parse_type(type_)))
+        },
+
+        _ => unreachable!()
+    }
 }
 
 fn parse_type(pair: Pair<Rule>) -> Type {
@@ -101,8 +190,11 @@ fn parse_map(pair: Pair<Rule>) -> Type {
         Rule::map => {
             let mut inner = pair.into_inner();
             let first = inner.next().unwrap();
-            
-            inner.fold(parse_type(first), |acc, x| Type::Map(Box::new(acc), Box::new(parse_type(x))))
+            let second = inner.next();
+            match second {
+                Some(x) => Type::Map(Box::new(parse_type(first)), Box::new(parse_map(x))),
+                None => parse_type(first)
+            }
         },
 
         _ => unreachable!()

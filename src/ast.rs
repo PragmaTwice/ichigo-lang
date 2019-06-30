@@ -12,7 +12,7 @@ pub struct Pattern {
 #[derive(Debug)]
 pub enum Expr {
     Var(Ident),
-    Lambda(Vec<Pattern>, Box<Type>),
+    Lambda(Vec<Pattern>),
     Apply(Box<Self>, Box<Self>),
     Typed(Box<Self>, Box<Type>)
 }

@@ -11,14 +11,14 @@ pattern = { typed ~ "." ~ expr }
 patterns = { "{"  ~ line ~ (pattern ~ split)+ ~ "}" | pattern }
 
 lambda = { "λ" ~ patterns }
-apply = { atom ~ atom+ }
+apply = { atom ~ apply? }
 typed = { atom ~ ":" ~ type_ }
 
 expr = { lambda | apply | typed | atom }
 
 tatom = { "(" ~ type_ ~ ")" | ident }
 
-map = { tatom ~ ("→" ~ tatom)+ }
+map = { tatom ~ ("→" ~ map)? }
 
 instance = { ident ~ ":" ~ type_ }
 instances = { "{" ~ line ~ (instance ~ split)* ~ "}" | instance }
