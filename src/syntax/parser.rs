@@ -38,9 +38,7 @@ fn parse_main(pair: Pair<Rule>) -> Main {
 
 fn parse_ident(pair: Pair<Rule>) -> Ident {
     match pair.as_rule() {
-        Rule::ident => Ident {
-            name : pair.as_str().to_owned()
-        },
+        Rule::ident => Ident(pair.as_str().to_owned()),
 
         _ => unreachable!()
     }
@@ -134,7 +132,10 @@ fn parse_apply(pair: Pair<Rule>) -> Expr {
             let mut inner = pair.into_inner();
             let first = inner.next().unwrap();
 
-            inner.fold(parse_expr(first), |acc, x| Expr::Apply(Box::new(acc), Box::new(parse_expr(x))))
+            inner.fold(parse_expr(first), |acc, x| Expr::Apply(
+                Box::new(acc), 
+                Box::new(parse_expr(x))
+            ))
         },
 
         _ => unreachable!()
@@ -148,7 +149,10 @@ fn parse_typed(pair: Pair<Rule>) -> Expr {
             let expr = inner.next().unwrap();
             let type_ = inner.next().unwrap();
 
-            Expr::Typed(Box::new(parse_expr(expr)), Box::new(parse_type(type_)))
+            Expr::Typed(
+                Box::new(parse_expr(expr)), 
+                Box::new(parse_type(type_))
+            )
         },
 
         _ => unreachable!()
@@ -189,7 +193,10 @@ fn parse_map(pair: Pair<Rule>) -> Type {
             let first = inner.next().unwrap();
             let second = inner.next();
             match second {
-                Some(x) => Type::Map(Box::new(parse_type(first)), Box::new(parse_map(x))),
+                Some(x) => Type::Map(
+                    Box::new(parse_type(first)), 
+                    Box::new(parse_map(x))
+                ),
                 None => parse_type(first)
             }
         },
@@ -209,10 +216,10 @@ fn parse_sum(pair: Pair<Rule>) -> Type {
                         let ident = inner.next().unwrap();
                         let type_ = inner.next().unwrap();
 
-                        instances.push(Instance{
-                            ins: parse_ident(ident),
-                            type_: Box::new(parse_type(type_))
-                        });
+                        instances.push(Instance(
+                            parse_ident(ident),
+                            Box::new(parse_type(type_))
+                        ));
                     },
 
                     _ => unreachable!()
