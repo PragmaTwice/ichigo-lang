@@ -2,45 +2,60 @@ use crate::syntax::ast::*;
 
 struct Symbol (Ident, Type);
 type SymbolStack = Vec<Symbol>;
+type TypeList = Vec<Symbol>;
 
-pub fn check(ast : Main) -> Main {
-    let mut stack = SymbolStack::new();
-    check_main(ast, &mut stack)
+pub struct TypeChecker {
+    symbols : SymbolStack,
+    types : TypeList
 }
 
-fn check_main(node : Main, stack : &mut SymbolStack) -> Main {
-    node.into_iter().map(|n| check_bind(n, stack)).collect()
-}
+impl TypeChecker {
 
-fn check_bind(node : Bind, stack : &mut SymbolStack) -> Bind {
-    match node {
-        Bind::Expr(id, expr) => Bind::Expr(id, 
-            Box::new(check_expr(expr.as_ref().clone(), stack))
-        ),
-        Bind::Type(id, type_) => Bind::Type(id, type_)
+    pub fn check(ast : Main) -> (Self, Main) {
+        let mut type_checker = TypeChecker {
+            symbols: SymbolStack::new(),
+            types: TypeList::new()
+        };
+
+        let typed_ast = type_checker.check_main(ast);
+        (type_checker, typed_ast)
     }
-}
 
-fn check_expr(node : Expr, stack : &mut SymbolStack) -> Expr {
-    match node {
-        Expr::Apply(f, x) => Expr::Apply(
-            Box::new(check_expr(f.as_ref().clone(), stack)), 
-            Box::new(check_expr(x.as_ref().clone(), stack))
-        ),
-        Expr::Lambda(patterns) => Expr::Lambda(
-            patterns.iter().map(|n| check_pattern(n.clone(), stack)).collect()
-        ), 
-        Expr::Typed(expr, type_) => Expr::Typed(
-            Box::new(check_expr(expr.as_ref().clone(), stack)), 
-            type_
-        ),
-        Expr::Var(id) => Expr::Var(id)
+    fn check_main(&mut self, node : Main) -> Main {
+        node.into_iter().map(|n| self.check_bind(n)).collect()
     }
-}
 
-fn check_pattern(node : Pattern, stack : &mut SymbolStack) -> Pattern {
-    Pattern {
-        param: Box::new(check_expr(node.param.as_ref().clone(), stack)),
-        expr: Box::new(check_expr(node.expr.as_ref().clone(), stack))
+    fn check_bind(&mut self, node : Bind) -> Bind {
+        match node {
+            Bind::Expr(id, expr) => Bind::Expr(id, 
+                Box::new(self.check_expr(expr.as_ref().clone()))
+            ),
+            Bind::Type(id, type_) => Bind::Type(id, type_)
+        }
     }
+
+    fn check_expr(&mut self, node : Expr) -> Expr {
+        match node {
+            Expr::Apply(f, x) => Expr::Apply(
+                Box::new(self.check_expr(f.as_ref().clone())), 
+                Box::new(self.check_expr(x.as_ref().clone()))
+            ),
+            Expr::Lambda(patterns) => Expr::Lambda(
+                patterns.iter().map(|n| self.check_pattern(n.clone())).collect()
+            ), 
+            Expr::Typed(expr, type_) => Expr::Typed(
+                Box::new(self.check_expr(expr.as_ref().clone())), 
+                type_
+            ),
+            Expr::Var(id) => Expr::Var(id)
+        }
+    }
+
+    fn check_pattern(&mut self, node : Pattern) -> Pattern {
+        Pattern {
+            param: Box::new(self.check_expr(node.param.as_ref().clone())),
+            expr: Box::new(self.check_expr(node.expr.as_ref().clone()))
+        }
+    }
+
 }

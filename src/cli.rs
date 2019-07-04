@@ -14,7 +14,7 @@ pub fn parse_option() {
             let ast = parser::parse_file(x);
             println!("untyped : {:?}", ast);
             println!();
-            let typed_ast = type_checker::check(ast);
+            let (_, typed_ast) = type_checker::TypeChecker::check(ast);
             println!("typed   : {:?}", typed_ast);
         },
         None => println!("no file path.")
