@@ -25,9 +25,9 @@ instances = { "{" ~ line ~ (instance ~ split)* ~ "}" | instance }
 
 sum = { "σ" ~ instances }
 
-type_ = { sum | map | tatom }
+type_ = { map | tatom }
 
-bind = { ident ~ "=" ~ (!"σ" ~ expr | type_) }
+bind = { ident ~ "=" ~ (!"σ" ~ expr | sum) }
 
 
 main = { SOI ~ line ~ (bind ~ split)* ~ EOI }

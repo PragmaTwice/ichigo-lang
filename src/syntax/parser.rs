@@ -53,7 +53,7 @@ fn parse_bind(pair: Pair<Rule>) -> Option<Bind> {
 
             Some(match binded.as_rule() {
                 Rule::expr => Bind::Expr(ident, Box::new(parse_expr(binded))),
-                Rule::type_ => Bind::Type(ident, Box::new(parse_type(binded))),
+                Rule::sum => Bind::Type(ident, Box::new(parse_sum(binded))),
 
                 _ => unreachable!()
             })
@@ -165,7 +165,6 @@ fn parse_type(pair: Pair<Rule>) -> Type {
         Rule::type_ => {   
             let inner = pair.into_inner().peek().unwrap();
             match inner.as_rule() {
-                Rule::sum => parse_sum(inner),
                 Rule::map => parse_map(inner),
                 Rule::tatom => parse_type(inner),
 
