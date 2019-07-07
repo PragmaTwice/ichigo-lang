@@ -107,7 +107,7 @@ fn parse_lambda(pair: Pair<Rule>) -> Expr {
                             let expr = innererer.next().unwrap();
 
                             patterns.push(Pattern{
-                                param: Box::new(parse_typed(param)), 
+                                param: Box::new(parse_expr(param)), 
                                 expr: Box::new(parse_expr(expr))
                             });
                         },

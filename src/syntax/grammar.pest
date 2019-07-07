@@ -7,7 +7,7 @@ line = _{ NEWLINE* }
 ident = @{ (!("λ" | "σ") ~ LETTER | NUMBER | !("=" | "→") ~ SYMBOL)+ }
 atom = { "(" ~ expr ~ ")" | ident }
 
-pattern = { typed ~ "." ~ expr }
+pattern = { expr ~ "." ~ expr }
 patterns = { "{"  ~ line ~ (pattern ~ split)+ ~ "}" | pattern }
 
 lambda = { "λ" ~ patterns }
