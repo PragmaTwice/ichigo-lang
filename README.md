@@ -13,12 +13,18 @@
 - It's trivial, just a toy, used to familiarize with Rust
 - **NO DEPENDENT TYPE**
 
-## Quickstart
+## Quick Start
 ```sh
 cargo run example/hello.ichigo
 ```
 
-## Quickview
+## TODO List
+- [x] parser
+- [x] type checker
+- [x] type inference
+- [ ] evaluator
+
+## Quick View
 
 ```ichigo
 ℕ = σ {
