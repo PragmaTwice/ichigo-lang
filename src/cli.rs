@@ -12,10 +12,13 @@ pub fn parse_option() {
     match arg_iter.next() {
         Some(x) => {
             let ast = parser::parse_file(x);
-            println!("untyped : {:?}", ast);
+            println!("untyped   : {:?}", ast);
             println!();
             let (_, typed_ast) = type_checker::TypeChecker::check(ast);
-            println!("typed   : {:?}", typed_ast);
+            match typed_ast {
+                Ok(o) => println!("typed     : {:?}", o),
+                Err(e) => println!("type error: {}", e)
+            }
         },
         None => println!("no file path.")
     }
