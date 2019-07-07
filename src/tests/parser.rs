@@ -3,7 +3,7 @@ use crate::syntax::ast::*;
 
 #[test]
 fn test_example() {
-    assert_eq!(parser::parse_file("example/hello.ichigo"), vec![
+    assert_eq!(parser::parse_file("example/hello.ichigo"), Ok(vec![
         Bind::Type(
             Ident(
                 "ℕ".to_string(),
@@ -203,5 +203,5 @@ fn test_example() {
                 ],
             )),
         ),
-    ]);
+    ]));
 }
