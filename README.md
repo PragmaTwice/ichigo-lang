@@ -49,11 +49,11 @@ cargo run example/hello.ichigo
 }
 
 take = λ {
-    0    . λ x : ℕ𝓁. ∅
     1+ n . λ {
             ∅       . ∅
             ++ x xs . ++ x (take n xs)
     }
+    0    . λ x . ∅
 }
 
 ```

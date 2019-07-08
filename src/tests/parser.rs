@@ -76,16 +76,6 @@ fn test_example() {
                 Ident("take".to_string(),),
                 Box::new(Expr::Lambda(vec![
                     Pattern {
-                        param: Box::new(Expr::Var(Ident("0".to_string(),),),),
-                        expr: Box::new(Expr::Lambda(vec![Pattern {
-                            param: Box::new(Expr::Typed(
-                                Box::new(Expr::Var(Ident("x".to_string(),),)),
-                                Box::new(Type::Var(Ident("ℕ𝓁".to_string(),),)),
-                            )),
-                            expr: Box::new(Expr::Var(Ident("∅".to_string(),),)),
-                        },],)),
-                    },
-                    Pattern {
                         param: Box::new(Expr::Apply(
                             Box::new(Expr::Var(Ident("1+".to_string()))),
                             Box::new(Expr::Var(Ident("n".to_string())))
@@ -119,6 +109,13 @@ fn test_example() {
                                 ))
                             },
                         ],))
+                    },
+                    Pattern {
+                        param: Box::new(Expr::Var(Ident("0".to_string(),),),),
+                        expr: Box::new(Expr::Lambda(vec![Pattern {
+                            param: Box::new(Expr::Var(Ident("x".to_string(),),)),
+                            expr: Box::new(Expr::Var(Ident("∅".to_string(),),)),
+                        },],)),
                     }
                 ],)),
             ),
