@@ -17,7 +17,7 @@ pub fn parse_option() {
                 Ok(o) => {
                     println!("{:6} : {:?}\n", "untyped".yellow(), o);
 
-                    let (checker, typed_ast) = type_checker::TypeChecker::check(o);
+                    let (checker, typed_ast) = type_checker::TypeChecker::from_check(o);
                     match typed_ast {
                         Ok(o) => println!("{:6} : {:?}\n", "typed".yellow(), o),
                         Err(e) => println!("{} : {}\n", "type error".red(), e)

@@ -47,14 +47,21 @@ pub struct TypeChecker {
 
 impl TypeChecker {
 
-    pub fn check(ast : Main) -> (Self, CheckResult<Main>) {
-        let mut type_checker = TypeChecker {
+    pub fn new() -> Self {
+        TypeChecker {
             symbols: SymbolStack::new(),
             types: TypeList::new(),
             param_num_stack: ParamNumStack::new()
-        };
+        }
+    }
 
-        let typed_ast = type_checker.check_main(ast);
+    pub fn check(&mut self, ast : Main) -> CheckResult<Main> {
+        self.check_main(ast)
+    }
+
+    pub fn from_check(ast : Main) -> (Self, CheckResult<Main>) {
+        let mut type_checker = TypeChecker::new();
+        let typed_ast = type_checker.check(ast);
         (type_checker, typed_ast)
     }
 
