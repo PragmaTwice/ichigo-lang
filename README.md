@@ -24,6 +24,12 @@ cargo run example/hello.ichigo
 - [x] type inference
 - [ ] evaluator
 
+## Language Feature
+- Algebraic data type
+- Lambda calculus
+- Pattern matching
+- Unicode symbol
+
 ## Quick View
 
 ```ichigo
