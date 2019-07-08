@@ -56,14 +56,13 @@ fn test_example() {
                             Box::new(Type::Var(
                                 Ident(
                                     "ℕ".to_string(),
-                                ),
-                            )),
+                                )
+                            ))
                         )),
                         expr: Box::new(Expr::Lambda(
                             vec![
                                 Pattern {
-                                    param: Box::new(Expr::Typed(
-                                        Box::new(Expr::Apply(
+                                    param: Box::new(Expr::Apply(
                                             Box::new(Expr::Var(
                                                 Ident(
                                                     "1+".to_string(),
@@ -73,13 +72,8 @@ fn test_example() {
                                                 Ident(
                                                     "y".to_string(),
                                                 ),
-                                            )),
-                                        )),
-                                        Box::new(Type::Var(
-                                            Ident(
-                                                "ℕ".to_string(),
                                             ),
-                                        )),
+                                        ),
                                     )),
                                     expr: Box::new(Expr::Apply(
                                         Box::new(Expr::Var(
@@ -164,18 +158,12 @@ fn test_example() {
             Box::new(Expr::Lambda(
                 vec![
                     Pattern {
-                        param: Box::new(Expr::Typed(
-                            Box::new(Expr::Var(
+                        param: Box::new(Expr::Var(
                                 Ident(
                                     "0".to_string(),
                                 ),
-                            )),
-                            Box::new(Type::Var(
-                                Ident(
-                                    "ℕ".to_string(),
-                                ),
-                            )),
-                        )),
+                            ),
+                        ),
                         expr: Box::new(Expr::Lambda(
                             vec![
                                 Pattern {
