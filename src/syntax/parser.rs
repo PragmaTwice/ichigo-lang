@@ -99,21 +99,22 @@ fn parse_lambda(pair: Pair<Rule>) -> Expr {
             match inner.as_rule() {
                 Rule::patterns => {
                     let mut patterns = Vec::new();
-                    let innerer = inner.into_inner().peek().unwrap();
-                    match innerer.as_rule() {
-                        Rule::pattern => {
-                            let mut innererer = innerer.into_inner();
-                            let param = innererer.next().unwrap();
-                            let expr = innererer.next().unwrap();
+                    for pattern in inner.into_inner() {
+                        match pattern.as_rule() {
+                            Rule::pattern => {
+                                let mut innererer = pattern.into_inner();
+                                let param = innererer.next().unwrap();
+                                let expr = innererer.next().unwrap();
 
-                            patterns.push(Pattern{
-                                param: Box::new(parse_expr(param)), 
-                                expr: Box::new(parse_expr(expr))
-                            });
-                        },
+                                patterns.push(Pattern{
+                                    param: Box::new(parse_expr(param)), 
+                                    expr: Box::new(parse_expr(expr))
+                                });
+                            },
 
-                        _ => unreachable!()
-                    };
+                            _ => unreachable!()
+                        }
+                    }
 
                     Expr::Lambda(patterns)
                 },
