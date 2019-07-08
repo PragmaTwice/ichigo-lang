@@ -15,15 +15,15 @@ pub fn parse_option() {
             let ast = parser::parse_file(x);
             match ast {
                 Ok(o) => {
-                    println!("{:8} : {:?}\n", "untyped".yellow(), o);
+                    println!("{:6} : {:?}\n", "untyped".yellow(), o);
 
                     let (checker, typed_ast) = type_checker::TypeChecker::check(o);
                     match typed_ast {
-                        Ok(o) => println!("{:8} : {:?}\n", "typed".yellow(), o),
+                        Ok(o) => println!("{:6} : {:?}\n", "typed".yellow(), o),
                         Err(e) => println!("{} : {}", "type error".red(), e)
                     }
-                    println!("{:8} : {:?}\n", "symbols".yellow(), checker.symbols);
-                    println!("{:8} : {:?}\n", "types".yellow(), checker.types);
+                    println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols);
+                    println!("{:6} : {:?}\n", "types".yellow(), checker.types);
                 },
                 Err(e) => println!("{} : {}", "parse error".red(), e)
             };
