@@ -7,7 +7,6 @@ pub struct Symbol {
 }
 
 type SymbolStack = Vec<Symbol>;
-type TypeList = Vec<Symbol>;
 type CheckResult <Node> = Result<Node, String>;
 type ParamNumStack = Vec<i32>;
 
@@ -41,7 +40,6 @@ impl Symbol {
 #[derive(Debug)]
 pub struct TypeChecker {
     pub symbols : SymbolStack,
-    pub types : TypeList,
     pub param_num_stack : ParamNumStack
 }
 
@@ -50,7 +48,6 @@ impl TypeChecker {
     pub fn new() -> Self {
         TypeChecker {
             symbols: SymbolStack::new(),
-            types: TypeList::new(),
             param_num_stack: ParamNumStack::new()
         }
     }
@@ -97,7 +94,6 @@ impl TypeChecker {
             },
             Bind::Type(id, type_) => {
                 let checked_type = self.check_type(type_.as_ref().clone())?;
-                self.types.push(Symbol::new_with_box(&id, &type_));
                 Ok(Bind::Type(id, Box::new(checked_type)))
             }
         }

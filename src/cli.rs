@@ -23,7 +23,6 @@ pub fn parse_option() {
                         Err(e) => println!("{} : {}\n", "type error".red(), e)
                     }
                     println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols);
-                    println!("{:6} : {:?}\n", "types".yellow(), checker.types);
                 },
                 Err(e) => println!("{} : {}\n", "parse error".red(), e)
             };
