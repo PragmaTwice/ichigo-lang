@@ -105,10 +105,17 @@ fn test_example() {
                                 )),
                                 expr: Box::new(Expr::Apply(
                                     Box::new(Expr::Apply(
-                                        Box::new(Expr::Var(Ident("take".to_string()))),
-                                        Box::new(Expr::Var(Ident("n".to_string())))
+                                        Box::new(Expr::Var(Ident("++".to_string()))),
+                                        Box::new(Expr::Var(Ident("x".to_string())))
+
                                     )),
-                                    Box::new(Expr::Var(Ident("xs".to_string())))
+                                    Box::new(Expr::Apply(
+                                        Box::new(Expr::Apply(
+                                            Box::new(Expr::Var(Ident("take".to_string()))),
+                                            Box::new(Expr::Var(Ident("n".to_string())))
+                                        )),
+                                        Box::new(Expr::Var(Ident("xs".to_string())))
+                                    ))
                                 ))
                             },
                         ],))
