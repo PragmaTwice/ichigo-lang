@@ -20,15 +20,15 @@ pub fn parse_option() {
                     let (checker, typed_ast) = type_checker::TypeChecker::check(o);
                     match typed_ast {
                         Ok(o) => println!("{:6} : {:?}\n", "typed".yellow(), o),
-                        Err(e) => println!("{} : {}", "type error".red(), e)
+                        Err(e) => println!("{} : {}\n", "type error".red(), e)
                     }
                     println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols);
                     println!("{:6} : {:?}\n", "types".yellow(), checker.types);
                 },
-                Err(e) => println!("{} : {}", "parse error".red(), e)
+                Err(e) => println!("{} : {}\n", "parse error".red(), e)
             };
             
         },
-        None => println!("{} : {}", "io error".red(), "no file path")
+        None => println!("{} : {}\n", "io error".red(), "no file path")
     }
 }
