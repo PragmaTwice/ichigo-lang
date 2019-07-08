@@ -12,10 +12,10 @@ struct IchigoParser;
 type ParseResult <Node> = Result<Node, String>;
 
 pub fn parse_file(filename: &str) -> ParseResult<Main> {
-    let contents = fs::read_to_string(filename)
-        .expect("something went wrong while reading the file");
-
-    parse_str(contents.as_str())
+    match fs::read_to_string(filename) {
+        Ok(o) => parse_str(o.as_str()),
+        Err(e) => Err(e.to_string())
+    }
 }
 
 pub fn parse_str(input: &str) -> ParseResult<Main> {
