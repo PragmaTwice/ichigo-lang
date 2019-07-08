@@ -1,6 +1,6 @@
 mod syntax;
-
 mod check;
+mod eval;
 
 mod cli;
 
