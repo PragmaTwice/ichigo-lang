@@ -39,8 +39,8 @@ cargo run example/hello.ichigo
 }
 
 + = λ x : ℕ . λ { 
-    (1+ y) . 1+ (+ x y)
-    0      . x
+    1+ y . 1+ (+ x y)
+    0    . x
 }
 
 ℕ𝓁 = σ {
@@ -49,10 +49,10 @@ cargo run example/hello.ichigo
 }
 
 take = λ {
-    0      . λ x : ℕ𝓁. ∅
-    (1+ n) . λ {
-            ∅         . ∅
-            (++ x xs) . take n xs
+    0    . λ x : ℕ𝓁. ∅
+    1+ n . λ {
+            ∅       . ∅
+            ++ x xs . ++ x (take n xs)
     }
 }
 
