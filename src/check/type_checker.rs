@@ -152,7 +152,7 @@ impl TypeChecker {
                             )
                         ), Box::new(t)
                     )),
-                    None => Err("apply expr: mismatched types".to_owned())
+                    None => Err(format!("[apply expr] {:?} {:?} : mismatched types", f, x))
                 }
             },
             Expr::Lambda(patterns) => {
@@ -170,7 +170,7 @@ impl TypeChecker {
                             );
                             match &lambda_type {
                                 Some(lam_t) => if lam_t != &pattern_type {
-                                    Err("lambda expr: ambiguous-typed patterns".to_owned())
+                                    Err(format!("[lambda expr] {:?} : ambiguous-typed patterns", patterns))
                                 } else {
                                     Ok(checked_pattern)
                                 },
@@ -191,7 +191,7 @@ impl TypeChecker {
 
                 match lambda_type {
                     Some(lam_t) => Ok(Expr::Typed(Box::new(checked_expr), Box::new(lam_t))),
-                    None => Err("lambda expr: untyped patterns".to_owned())
+                    None => Err(format!("[lambda expr] {:?} : untyped patterns", patterns))
                 }
             }, 
             Expr::Typed(expr, type_) => {
@@ -199,7 +199,7 @@ impl TypeChecker {
                 if &TypeChecker::extract_type(&checked_expr) == type_.as_ref() {
                     Ok(checked_expr)
                 } else {
-                    Err("typed expr: mismatched types".to_owned())
+                    Err(format!("[typed expr] {:?} : {:?} : mismatched types", expr, type_))
                 }
             },
             Expr::Var(id) => {
@@ -209,7 +209,7 @@ impl TypeChecker {
                             Some(type_con) => if type_con == *s_type {
                                 Ok(Expr::Typed(Box::new(Expr::Var(id)), Box::new(s_type.clone())))
                             } else {
-                                Err(format!("var expr ({:?}): ambiguous-typed identifiers", id))
+                                Err(format!("[var expr] {:?} : ambiguous-typed identifiers", id))
                             },
                             None => Ok(Expr::Typed(Box::new(Expr::Var(id)), Box::new(s_type.clone())))
                         },
@@ -218,12 +218,12 @@ impl TypeChecker {
                                 Box::new(Expr::Var(id)), 
                                 Box::new(type_con.clone())
                             )),
-                            None => Err(format!("var expr ({:?}): untyped identifiers", id))
+                            None => Err(format!("[var expr] {:?} : untyped identifiers", id))
                         }
                     },
                     None => {
                         if !in_param {
-                            Err(format!("var expr ({:?}): unfound identifiers", id))
+                            Err(format!("[var expr] {:?} : unfound identifiers", id))
                         } else {
                             match type_constraint {
                                 Some(type_con) => {
@@ -240,7 +240,7 @@ impl TypeChecker {
                                         Box::new(type_con.clone())
                                     ))
                                 },
-                                None => Err(format!("var expr ({:?}): untyped identifiers", id))
+                                None => Err(format!("[var expr] {:?} : untyped identifiers", id))
                             }
                         }
                     }
