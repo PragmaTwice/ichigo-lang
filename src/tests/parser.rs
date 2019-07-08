@@ -1,6 +1,6 @@
-
 use crate::syntax::ast::*;
 use crate::syntax::parser;
+
 #[test]
 fn test_example() {
     assert_eq!(
