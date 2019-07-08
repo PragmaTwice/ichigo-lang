@@ -1,6 +1,7 @@
 use super::syntax::parser;
 use super::check::type_checker;
 use std::env;
+use colored::*;
 
 pub fn parse_option() {
     let args: Vec<_> = env::args().collect();
@@ -14,18 +15,20 @@ pub fn parse_option() {
             let ast = parser::parse_file(x);
             match ast {
                 Ok(o) => {
-                    println!("untyped   : {:?}", o);
-                    println!();
-                    let (_, typed_ast) = type_checker::TypeChecker::check(o);
+                    println!("{:8} : {:?}", "untyped".yellow(), o);
+
+                    let (checker, typed_ast) = type_checker::TypeChecker::check(o);
                     match typed_ast {
-                        Ok(o) => println!("typed     : {:?}", o),
-                        Err(e) => println!("type error: {}", e)
+                        Ok(o) => println!("{:8} : {:?}", "typed".yellow(), o),
+                        Err(e) => println!("{} : {}", "type error".red(), e)
                     }
+                    println!("{:8} : {:?}", "symbols".yellow(), checker.symbols);
+                    println!("{:8} : {:?}", "types".yellow(), checker.types);
                 },
-                Err(e) => println!("parse error: {}", e)
+                Err(e) => println!("{} : {}", "parse error".red(), e)
             };
             
         },
-        None => println!("no file path.")
+        None => println!("{} : {}", "io error".red(), "no file path")
     }
 }

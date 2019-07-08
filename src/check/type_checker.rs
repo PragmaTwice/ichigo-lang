@@ -1,9 +1,9 @@
 use crate::syntax::ast::*;
 
 #[derive(Debug)]
-struct Symbol {
-    id : Ident,
-    optional_type : Option<Type>
+pub struct Symbol {
+    pub id : Ident,
+    pub optional_type : Option<Type>
 }
 
 type SymbolStack = Vec<Symbol>;
@@ -40,9 +40,9 @@ impl Symbol {
 
 #[derive(Debug)]
 pub struct TypeChecker {
-    symbols : SymbolStack,
-    types : TypeList,
-    param_num_stack : ParamNumStack
+    pub symbols : SymbolStack,
+    pub types : TypeList,
+    pub param_num_stack : ParamNumStack
 }
 
 impl TypeChecker {
