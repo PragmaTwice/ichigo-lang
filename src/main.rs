@@ -1,6 +1,7 @@
 mod syntax;
 mod check;
 mod eval;
+mod print;
 
 mod cli;
 

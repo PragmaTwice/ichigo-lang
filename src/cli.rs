@@ -1,5 +1,6 @@
 use super::syntax::parser;
 use super::check::type_checker;
+use super::print::printer;
 use std::env;
 use colored::*;
 
@@ -16,10 +17,14 @@ pub fn parse_option() {
             match ast {
                 Ok(o) => {
                     println!("{:6} : {:?}\n", "untyped".yellow(), o);
+                    println!("{:6} : {}\n", "code".yellow(), printer::print(o.clone()));
 
                     let (checker, typed_ast) = type_checker::TypeChecker::from_check(o);
                     match typed_ast {
-                        Ok(o) => println!("{:6} : {:?}\n", "typed".yellow(), o),
+                        Ok(o) => {
+                            println!("{:6} : {:?}\n", "typed".yellow(), o);
+                            println!("{:6} : {}\n", "code".yellow(), printer::print(o.clone()));
+                        },
                         Err(e) => println!("{} : {}\n", "type error".red(), e)
                     }
                     println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols);
