@@ -29,12 +29,6 @@ impl Symbol {
             optional_type : Some(type_.as_ref().clone())
         }
     }
-
-    fn set_boxed_type(&mut self, type_: &Box<Type>) {
-        if self.optional_type == None {
-            self.optional_type = Some(type_.as_ref().clone())
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -77,14 +71,26 @@ impl TypeChecker {
     fn check_bind(&mut self, node : Bind, type_constraint : Option<Type>) -> CheckResult<Bind> {
         match node {
             Bind::Expr(id, expr) => {
-                self.symbols.push(Symbol::new_without_type(&id));
+                let mut pos = self.symbols.iter().position(|s| s.id == id);
+                match pos {
+                    None => {
+                        self.symbols.push(Symbol::new_without_type(&id));
+                        pos = Some(self.symbols.len() - 1);
+                    },
+                    _ => ()
+                }
                 let checked_expr = self.check_expr(expr.as_ref().clone(), type_constraint, false)?;
                 match &checked_expr {
                     Expr::Typed(_, type_) => {
-                        let pos = self.symbols.iter().position(|s| s.id == id);
+                        let t = type_.as_ref().clone();
                         match pos {
-                            Some(n) => self.symbols[n].set_boxed_type(type_),
-                            None => ()
+                            Some(n) => match self.symbols[n].optional_type {
+                                Some(ref t_) => if t != *t_ {
+                                    return Err(format!("[bind expr] {:?} {:?} : mismatched types", id, expr))
+                                },
+                                None => self.symbols[n].optional_type = Some(t)
+                            }
+                            _ => ()
                         }
                     },
 
