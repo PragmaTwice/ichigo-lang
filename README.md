@@ -23,6 +23,8 @@ cargo run example/hello.ichigo -UTG
 - [x] type checker
 - [x] type inference
 - [ ] evaluator
+- [x] REPL
+- [x] pretty printer
 
 ## Language Feature
 - Algebraic data type
