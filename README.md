@@ -19,12 +19,14 @@ cargo run example/hello.ichigo -UTG
 ```
 
 ## TODO List
-- [x] parser
-- [x] type checker
-- [x] type inference
-- [ ] evaluator
-- [x] REPL
-- [x] pretty printer
+- core task
+    - [x] parser
+    - [x] type checker
+    - [x] type inference
+    - [ ] evaluator
+- peripheral task
+    - [x] REPL
+    - [x] pretty printer
 
 ## Language Feature
 - Algebraic data type
