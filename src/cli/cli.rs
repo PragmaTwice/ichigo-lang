@@ -19,7 +19,6 @@ pub fn main() {
         println!("processing '{}'...\n", input_file);
 
         let optional_ast = parser::parse_file(input_file);
-
         analysis_ast(optional_ast, &mut checker, &mut typed_ast, &matches);
     }
 
@@ -34,10 +33,10 @@ pub fn main() {
             let mut input_string = String::new();
             stdin().read_to_string(&mut input_string).expect("did not enter a correct string");
             
-            if input_string == "exit" {
+            if input_string.trim() == "exit" {
                 break;
             }
-
+            
             let optional_ast = parser::parse_str(input_string.as_str());
             analysis_ast(optional_ast, &mut checker, &mut typed_ast, &matches);
         }
