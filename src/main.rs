@@ -3,7 +3,6 @@ mod check;
 mod eval;
 mod print;
 
-#[macro_use]
 extern crate clap;
 
 mod cli;

@@ -9,7 +9,7 @@ use super::ast::*;
 #[grammar = "syntax/grammar.pest"]
 struct IchigoParser;
 
-type ParseResult <Node> = Result<Node, String>;
+pub type ParseResult <Node> = Result<Node, String>;
 
 pub fn parse_file(filename: &str) -> ParseResult<Main> {
     match fs::read_to_string(filename) {
