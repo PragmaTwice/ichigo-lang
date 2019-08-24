@@ -50,6 +50,7 @@ impl TypeChecker {
         self.check_main(ast)
     }
 
+    #[allow(dead_code)]
     pub fn from_check(ast : Main) -> (Self, CheckResult<Main>) {
         let mut type_checker = TypeChecker::new();
         let typed_ast = type_checker.check(ast);
