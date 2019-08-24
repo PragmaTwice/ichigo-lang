@@ -9,7 +9,7 @@ args:
     - interactive_mode:
         short: i
         long: interactive
-        help: turns to interactive mode
+        help: turns to interactive mode (REPL), 'exit' to exit
     - print_untyped_ast:
         short: U
         long: untyped-ast
