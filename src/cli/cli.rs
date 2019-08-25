@@ -55,7 +55,7 @@ fn analysis_ast(optional_ast : parser::ParseResult<ast::Main>,
             if matches.is_present("print_untyped_ast") {
                 println!("{:6} : {:?}\n", "untyped".yellow(), ast_part);
                 if matches.is_present("print_ast_with_generated_code") {
-                    println!("{:6} : {}\n", "code".yellow(), printer::print(ast_part.clone()));
+                    println!("{:6} : \n{}\n", "code".yellow(), printer::print(ast_part.clone()));
                 }
             }
             let typed_result = checker.check(ast_part);
@@ -65,7 +65,7 @@ fn analysis_ast(optional_ast : parser::ParseResult<ast::Main>,
                     if matches.is_present("print_typed_ast") {
                         println!("{:6} : {:?}\n", "typed".yellow(), typed_ast);
                         if matches.is_present("print_ast_with_generated_code") {
-                            println!("{:6} : {}\n", "code".yellow(), printer::print(typed_ast.clone()));
+                            println!("{:6} : \n{}\n", "code".yellow(), printer::print(typed_ast.clone()));
                         }
                     }
                 },
