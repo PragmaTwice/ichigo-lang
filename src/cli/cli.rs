@@ -25,7 +25,7 @@ pub fn main() {
 
     if matches.is_present("interactive_mode") {
         println!("turning to interactive mode...");
-
+        println!("{} : {}\n", "hint".yellow(), "command starting with `:` or ichigo-lang code is expected, both of which should be end by an EOF");
 
         loop {
             print!("\n{}", "> ".green());
@@ -40,12 +40,12 @@ pub fn main() {
                 match input_command[..] {
                     ["exit"] | ["quit"] => break,
                     ["print", printed] => match printed {
-                        "typed-ast" => println!("{:6} : {:?}\n", "typed ast".yellow(), typed_ast),
-                        "ast" => println!("{:6} : {:?}\n", "ast".yellow(), untyped_ast),
-                        "typed-code" => println!("{:6} : \n{}\n", "typed code".yellow(), printer::print(typed_ast.clone())),
-                        "code" => println!("{:6} : \n{}\n", "code".yellow(), printer::print(untyped_ast.clone())),
-                        "symbols" => println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols),
-                        _ => println!("{} : {}\n", "command error".red(), "only `(typed-)ast`, `(typed-)code`, `symbols` is functional")
+                        "typed-ast" => println!("{:?}\n", typed_ast),
+                        "ast" => println!("{:?}\n", untyped_ast),
+                        "typed-code" => println!("{}\n", printer::print(typed_ast.clone())),
+                        "code" => println!("{}\n", printer::print(untyped_ast.clone())),
+                        "symbols" => println!("{:?}\n", checker.symbols),
+                        _ => println!("{} : {}\n", "command error".red(), "the provided argument to print is unknown, try `help print`")
                     },
                     ["clear"] => {
                         checker = type_checker::TypeChecker::new();
@@ -56,8 +56,15 @@ pub fn main() {
                         let optional_ast = parser::parse_file(filename);
                         analysis_ast(optional_ast, &mut checker, &mut untyped_ast, &mut typed_ast, &matches);
                     }
-                    ["help"] => println!("{} : {}\n", "command info".yellow(), "`exit`, `quit`, `clear`, `print <something>`, `load <filename>` is expected, give a try"),
-                    [] => println!("{} : {}\n", "command error".red(), "a command follow `:` is expected but not provided"),
+                    ["help"] => println!("{} : {}\n", "command info".yellow(), "`exit` (or `quit`), `clear`, `print <something>`, `load <filename>` is expected, give a try with `help <command>`"),
+                    ["help", command] => match command {
+                        "exit" | "quit" => println!("{} : {}\n", "command info".yellow(), "to exit the REPL"),
+                        "print" => println!("{} : {}\n", "command info".yellow(), "to print some valuable information, as which `(typed-)ast`, `(typed-)code`, `symbols` is expected"),
+                        "clear" => println!("{} : {}\n", "command info".yellow(), "to clear all input, including input file"),
+                        "load" => println!("{} : {}\n", "command info".yellow(), "to load a ichigo-lang code file according to a filename"),
+                        _ => println!("{} : {}\n", "command error".red(), "the given command is not found")
+                    },
+                    [] => println!("{} : {}\n", "command error".red(), "a command follow `:` is expected but not provided, try `help`"),
                     _ => println!("{} : {}\n", "command error".red(), "the given command is not found, try `help`")
                 }
                 continue;
