@@ -47,7 +47,16 @@ pub fn main() {
                         "symbols" => println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols),
                         _ => println!("{} : {}\n", "command error".red(), "only `(typed-)ast`, `(typed-)code`, `symbols` is functional")
                     },
-                    ["help"] => println!("{} : {}\n", "command info".yellow(), "`exit`, `print <something>` is expected, give a try"),
+                    ["clear"] => {
+                        checker = type_checker::TypeChecker::new();
+                        untyped_ast = ast::Main::new();
+                        typed_ast = ast::Main::new();
+                    },
+                    ["load", filename] => {
+                        let optional_ast = parser::parse_file(filename);
+                        analysis_ast(optional_ast, &mut checker, &mut untyped_ast, &mut typed_ast, &matches);
+                    }
+                    ["help"] => println!("{} : {}\n", "command info".yellow(), "`exit`, `quit`, `clear`, `print <something>`, `load <filename>` is expected, give a try"),
                     [] => println!("{} : {}\n", "command error".red(), "a command follow `:` is expected but not provided"),
                     _ => println!("{} : {}\n", "command error".red(), "the given command is not found, try `help`")
                 }
