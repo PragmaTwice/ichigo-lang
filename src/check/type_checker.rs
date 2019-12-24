@@ -1,6 +1,6 @@
 use crate::syntax::ast::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Symbol {
     pub id : Ident,
     pub optional_type : Option<Type>
