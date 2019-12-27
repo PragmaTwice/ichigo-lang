@@ -12,9 +12,9 @@ comment_mark = _{ "!" }
 comment_prefix = _{ comment_mark ~ left_brace}
 comment_suffix = _{ right_brace }
 
-seperator_mark = _{ ";" }
+separator_mark = _{ ";" }
 
-trivial_mark_cat = { paren_cat | brace_cat | comment_mark | seperator_mark }
+trivial_mark_cat = { paren_cat | brace_cat | comment_mark | separator_mark }
 
 lambda_mark = _{ "λ" | "\\" }
 pattern_mark = _{ "." }
@@ -34,7 +34,7 @@ ident_cat = { !mark_cat ~ (LETTER | NUMBER | SYMBOL | PUNCTUATION) }
 WHITESPACE = _{ (!NEWLINE ~ WHITE_SPACE)+ }
 COMMENT = _{ comment_prefix ~ (!comment_suffix ~ ANY)* ~ comment_suffix }
 
-seperator = _{ NEWLINE+ | seperator_mark ~ NEWLINE* }
+separator = _{ NEWLINE+ | separator_mark ~ NEWLINE* }
 lines = _{ NEWLINE* }
 
 // rules
@@ -43,7 +43,7 @@ ident = @{ ident_cat+ }
 atom = { left_paren ~ expr ~ right_paren | ident }
 
 pattern = { expr ~ pattern_mark ~ expr }
-patterns = { left_brace  ~ lines ~ pattern ~ (seperator ~ pattern)* ~ lines ~ right_brace | pattern }
+patterns = { left_brace  ~ lines ~ pattern ~ (separator ~ pattern)* ~ lines ~ right_brace | pattern }
 
 lambda = { lambda_mark ~ patterns }
 apply = { atom ~ atom+ }
@@ -56,7 +56,7 @@ tatom = { left_paren ~ type_ ~ right_paren | ident }
 map = { tatom ~ (map_mark ~ map)? }
 
 instance = { ident ~ typed_mark ~ type_ }
-instances = { left_brace ~ lines ~ instance ~ (seperator ~ instance)* ~ lines ~ right_brace | instance }
+instances = { left_brace ~ lines ~ instance ~ (separator ~ instance)* ~ lines ~ right_brace | instance }
 
 sum = { sum_mark ~ instances }
 
@@ -64,4 +64,4 @@ type_ = { map | tatom }
 
 bind = { ident ~ bind_mark ~ (expr | sum) }
 
-main = { SOI ~ lines ~ bind? ~ (seperator ~ bind)* ~ lines ~ EOI }
+main = { SOI ~ lines ~ bind? ~ (separator ~ bind)* ~ lines ~ EOI }
