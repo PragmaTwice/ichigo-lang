@@ -1,33 +1,67 @@
-WHITESPACE = _{ " " | "\t" }
+// tokens
 
-split = _{ NEWLINE+ | ";" ~ NEWLINE* }
+left_paren = _{ "(" }
+right_paren = _{ ")" }
+paren_cat = _{ left_paren | right_paren }
 
-line = _{ NEWLINE* }
+left_brace = _{ "{" }
+right_brace = _{ "}" }
+brace_cat = _{ left_brace | right_brace }
 
-ident = @{ (!("λ" | "σ") ~ LETTER | NUMBER | !("=" | "→") ~ SYMBOL)+ }
-atom = { "(" ~ expr ~ ")" | ident }
+comment_mark = _{ "!" }
+comment_prefix = _{ comment_mark ~ left_brace}
+comment_suffix = _{ right_brace }
 
-pattern = { expr ~ "." ~ expr }
-patterns = { "{"  ~ line ~ (pattern ~ split)+ ~ "}" | pattern }
+seperator_mark = _{ ";" }
 
-lambda = { "λ" ~ patterns }
+trivial_mark_cat = { paren_cat | brace_cat | comment_mark | seperator_mark }
+
+lambda_mark = _{ "λ" | "\\" }
+pattern_mark = _{ "." }
+typed_mark = _{ ":" }
+
+map_mark = _{ "→" | "->" }
+sum_mark = _{ "σ" | "/" }
+
+bind_mark = _{ "=" }
+
+featured_mark_cat = _{ lambda_mark | pattern_mark | typed_mark | map_mark | sum_mark | bind_mark }
+
+mark_cat = _{ trivial_mark_cat | featured_mark_cat }
+
+ident_cat = { !mark_cat ~ (LETTER | NUMBER | SYMBOL | PUNCTUATION) }
+
+WHITESPACE = _{ (!NEWLINE ~ WHITE_SPACE)+ }
+COMMENT = _{ comment_prefix ~ (!comment_suffix ~ ANY)* ~ comment_suffix }
+
+seperator = _{ NEWLINE+ | seperator_mark ~ NEWLINE* }
+lines = _{ NEWLINE* }
+
+// rules
+
+ident = @{ ident_cat+ }
+atom = { left_paren ~ expr ~ right_paren | ident }
+
+pattern = { expr ~ pattern_mark ~ expr }
+patterns = { left_brace  ~ lines ~ pattern ~ (seperator ~ pattern)* ~ lines ~ right_brace | pattern }
+
+lambda = { lambda_mark ~ patterns }
 apply = { atom ~ atom+ }
-typed = { atom ~ ":" ~ type_ }
+typed = { atom ~ typed_mark ~ type_ }
 
 expr = { lambda | apply | typed | atom }
 
-tatom = { "(" ~ type_ ~ ")" | ident }
+tatom = { left_paren ~ type_ ~ right_paren | ident }
 
-map = { tatom ~ ("→" ~ map)? }
+map = { tatom ~ (map_mark ~ map)? }
 
-instance = { ident ~ ":" ~ type_ }
-instances = { "{" ~ line ~ (instance ~ split)* ~ "}" | instance }
+instance = { ident ~ typed_mark ~ type_ }
+instances = { left_brace ~ lines ~ instance ~ (seperator ~ instance)* ~ lines ~ right_brace | instance }
 
-sum = { "σ" ~ instances }
+sum = { sum_mark ~ instances }
 
 type_ = { map | tatom }
 
-bind = { ident ~ "=" ~ (!"σ" ~ expr | sum) }
+bind = { ident ~ bind_mark ~ (expr | sum) }
 
-
-main = { SOI ~ line ~ (bind ~ split)* ~ EOI }
+main = { SOI ~ lines ~ bind? ~ (seperator ~ bind)* ~ lines ~ EOI }
