@@ -15,7 +15,7 @@
 
 ## Quick Start
 ```sh
-cargo run -- -iUTG example/hello.ichigo
+cargo run -- -i example/hello.ichigo
 ```
 
 ## TODO List
