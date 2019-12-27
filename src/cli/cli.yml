@@ -9,16 +9,16 @@ args:
     - interactive_mode:
         short: i
         long: interactive
-        help: turns to interactive mode (REPL), 'exit' to exit
+        help: turns to interactive mode (REPL), ':help' for some useful information
     - print_untyped_ast:
         short: U
         long: untyped-ast
-        help: prints untyped AST
+        help: prints untyped AST for each input code segment
     - print_typed_ast:
         short: T
         long: typed-ast
-        help: prints typed AST
+        help: prints typed AST for each input code segment
     - print_ast_with_generated_code:
         short: G
         long: ast-generated-code
-        help: prints AST with generated code
+        help: prints generated code for each printed AST
