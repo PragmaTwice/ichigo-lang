@@ -17,5 +17,5 @@ args:
         long: print-typed-ast
         help: prints typed AST for each input code segment
     - print_ast_with_generated_code:
-        long: print-code
+        long: print-ast-generated-code
         help: prints generated code for each printed AST
