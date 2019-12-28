@@ -18,7 +18,7 @@ fn print_bind(node : Bind, layer : usize) -> String {
 fn print_expr(node : Expr, layer : usize) -> String {
     match node {
         Expr::Apply(lhs, rhs) => format!("({} {})", print_expr(lhs.as_ref().clone(), layer), print_expr(rhs.as_ref().clone(), layer)),
-        Expr::Lambda(patterns) => format!("λ {{\n{}\n{}}}", patterns.into_iter().map(|n| print_pattern(n, layer + 1)).collect::<Vec<_>>().join("\n"), "\t".repeat(layer)),
+        Expr::Lambda(patterns) => format!("(λ {{\n{}\n{}}})", patterns.into_iter().map(|n| print_pattern(n, layer + 1)).collect::<Vec<_>>().join("\n"), "\t".repeat(layer)),
         Expr::Typed(expr, type_) => format!("({} : {})", print_expr(expr.as_ref().clone(), layer), print_type(type_.as_ref().clone(), layer)),
         Expr::Var(id) => print_ident(id)
     }
@@ -26,7 +26,7 @@ fn print_expr(node : Expr, layer : usize) -> String {
 
 fn print_type(node : Type, layer : usize) -> String {
     match node {
-        Type::Map(lhs, rhs) => format!("({} -> {})", print_type(lhs.as_ref().clone(), layer), print_type(rhs.as_ref().clone(), layer)),
+        Type::Map(lhs, rhs) => format!("({} → {})", print_type(lhs.as_ref().clone(), layer), print_type(rhs.as_ref().clone(), layer)),
         Type::Sum(instances) => format!("σ {{\n{}\n{}}}", instances.into_iter().map(|n| print_instance(n, layer + 1)).collect::<Vec<_>>().join("\n"), "\t".repeat(layer)),
         Type::Var(id) => print_ident(id)
     }
