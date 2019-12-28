@@ -1,4 +1,5 @@
 use crate::syntax::ast::*;
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Symbol {
@@ -7,6 +8,7 @@ pub struct Symbol {
 }
 
 type SymbolStack = Vec<Symbol>;
+type TypeSet = HashSet<Ident>;
 type CheckResult <Node> = Result<Node, String>;
 type ParamNumStack = Vec<i32>;
 
@@ -34,6 +36,7 @@ impl Symbol {
 #[derive(Debug)]
 pub struct TypeChecker {
     pub symbols : SymbolStack,
+    pub types : TypeSet,
     pub param_num_stack : ParamNumStack
 }
 
@@ -42,6 +45,7 @@ impl TypeChecker {
     pub fn new() -> Self {
         TypeChecker {
             symbols: SymbolStack::new(),
+            types: TypeSet::new(),
             param_num_stack: ParamNumStack::new()
         }
     }
@@ -100,6 +104,8 @@ impl TypeChecker {
                 Ok(Bind::Expr(id, Box::new(checked_expr)))
             },
             Bind::Type(id, type_) => {
+                self.types.insert(id.clone());
+
                 let checked_type = self.check_type(type_.as_ref().clone())?;
                 Ok(Bind::Type(id, Box::new(checked_type)))
             }
@@ -108,17 +114,37 @@ impl TypeChecker {
 
     fn check_type(&mut self, node : Type) -> CheckResult<Type> {
         match node {
-            Type::Sum(instances) => Ok(Type::Sum(
-                instances.iter().map(|n| self.check_instance(n.clone())).filter_map(Result::ok).collect()
-            )),
-            Type::Map(lhs, rhs) => Ok(Type::Map(lhs, rhs)),
-            Type::Var(id) => Ok(Type::Var(id))
+            Type::Sum(instances) => {
+                let (oks, errs) : (
+                    Vec<CheckResult<Instance>>, 
+                    Vec<CheckResult<Instance>>
+                ) = instances.iter().map(|n| self.check_instance(n.clone())).partition(Result::is_ok);
+
+                if errs.is_empty() {
+                    Ok(Type::Sum(oks.into_iter().filter_map(Result::ok).collect()))
+                } else {
+                    Err(errs.into_iter().filter_map(Result::err).collect())
+                }
+            },
+            Type::Map(lhs, rhs) => {
+                let checked_lhs = self.check_type(lhs.as_ref().clone())?;
+                let checked_rhs = self.check_type(rhs.as_ref().clone())?;
+                Ok(Type::Map(Box::new(checked_lhs), Box::new(checked_rhs)))
+            },
+            Type::Var(id) => if self.types.contains(&id) {
+                Ok(Type::Var(id))
+            } else {
+                Err(format!("[var type] {:?} : unfound types", id))
+            }
         }
     }
 
     fn check_instance(&mut self, instance : Instance) -> CheckResult<Instance> {
-        self.symbols.push(Symbol::from_instance(&instance));
-        Ok(instance)
+        let checked_type = self.check_type(instance.1.as_ref().clone())?;
+        let checked_instance = Instance(instance.0.clone(), Box::new(checked_type));
+        
+        self.symbols.push(Symbol::from_instance(&checked_instance));
+        Ok(checked_instance)
     }
 
     fn check_expr(&mut self, node : Expr, type_constraint : Option<Type>, in_param : bool) -> CheckResult<Expr> {
@@ -170,7 +196,7 @@ impl TypeChecker {
                 let checked_expr = Expr::Lambda(
                     {
                         let (oks, errs) : (
-                            Vec<CheckResult<Pattern>>, 
+                            Vec<CheckResult<Pattern>>,
                             Vec<CheckResult<Pattern>>
                         ) = patterns.iter().map(|n| {
                             let checked_pattern = self.check_pattern(n.clone(), lambda_type.clone())?;
