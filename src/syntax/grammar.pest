@@ -51,16 +51,16 @@ typed = { atom ~ typed_mark ~ type_ }
 
 expr = { lambda | apply | typed | atom }
 
-tatom = { left_paren ~ type_ ~ right_paren | ident }
+type_atom = { left_paren ~ type_ ~ right_paren | ident }
 
-map = { tatom ~ (map_mark ~ map)? }
+map = { type_atom ~ (map_mark ~ map)? }
 
 instance = { ident ~ typed_mark ~ type_ }
 instances = { left_brace ~ lines ~ instance ~ (separator ~ instance)* ~ lines ~ right_brace | instance }
 
 sum = { sum_mark ~ instances }
 
-type_ = { map | tatom }
+type_ = { map | type_atom }
 
 bind = { ident ~ bind_mark ~ (expr | sum) }
 
