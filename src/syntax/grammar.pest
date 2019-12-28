@@ -9,8 +9,14 @@ right_brace = _{ "}" }
 brace_cat = _{ left_brace | right_brace }
 
 comment_mark = _{ "!" }
-comment_prefix = _{ comment_mark ~ left_brace}
-comment_suffix = _{ right_brace }
+
+block_comment_prefix = _{ comment_mark ~ left_brace }
+block_comment_suffix = _{ right_brace }
+block_comment = _{ block_comment_prefix ~ (!block_comment_suffix ~ ANY)* ~ block_comment_suffix }
+
+line_comment_prefix = _{ comment_mark }
+line_comment_suffix = _{ NEWLINE }
+line_comment = _{ line_comment_prefix ~ (!line_comment_suffix ~ ANY)* ~ line_comment_suffix }
 
 separator_mark = _{ ";" }
 
@@ -32,7 +38,7 @@ mark_cat = _{ trivial_mark_cat | featured_mark_cat }
 ident_cat = { !mark_cat ~ (LETTER | NUMBER | SYMBOL | PUNCTUATION) }
 
 WHITESPACE = _{ (!NEWLINE ~ WHITE_SPACE)+ }
-COMMENT = _{ comment_prefix ~ (!comment_suffix ~ ANY)* ~ comment_suffix }
+COMMENT = _{ block_comment | line_comment }
 
 separator = _{ NEWLINE+ | separator_mark ~ NEWLINE* }
 lines = _{ NEWLINE* }
