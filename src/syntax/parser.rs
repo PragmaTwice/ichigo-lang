@@ -167,12 +167,12 @@ fn parse_type(pair: Pair<Rule>) -> Type {
             let inner = pair.into_inner().peek().unwrap();
             match inner.as_rule() {
                 Rule::map => parse_map(inner),
-                Rule::tatom => parse_type(inner),
+                Rule::type_atom => parse_type(inner),
 
                 _ => unreachable!()
             }
         },
-        Rule::tatom => {   
+        Rule::type_atom => {
             let inner = pair.into_inner().peek().unwrap();
             match inner.as_rule() {
                 Rule::ident => Type::Var(parse_ident(inner)),
