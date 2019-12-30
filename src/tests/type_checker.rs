@@ -4,9 +4,13 @@ use crate::syntax::parser;
 
 #[test]
 fn test_example() {
-    let (checker, typed_ast) = TypeChecker::from_check(parser::parse_file("example/hello.ichigo").unwrap());
+    let (checker, typed_ast) =
+        TypeChecker::from_check(parser::parse_file("example/hello.ichigo").unwrap());
 
-    assert_eq!(typed_ast.unwrap(), parser::parse_file("example/hello.typed.ichigo").unwrap());
+    assert_eq!(
+        typed_ast.unwrap(),
+        parser::parse_file("example/hello.typed.ichigo").unwrap()
+    );
 
     assert_eq!(
         checker.symbols,
@@ -57,5 +61,12 @@ fn test_example() {
                 ))
             }
         ]
+    );
+
+    assert_eq!(
+        checker.types,
+        vec![Ident("ℕ".to_string()), Ident("ℕ𝓁".to_string())]
+            .into_iter()
+            .collect()
     );
 }
