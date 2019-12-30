@@ -45,6 +45,7 @@ pub fn main() {
                         "typed-code" => println!("{}\n", printer::print(typed_ast.clone())),
                         "code" => println!("{}\n", printer::print(untyped_ast.clone())),
                         "symbols" => println!("{:?}\n", checker.symbols),
+                        "types" => println!("{:?}\n", checker.types),
                         _ => println!("{} : {}\n", "command error".red(), "the provided argument to print is unknown, try `help print`")
                     },
                     ["clear"] => {
@@ -59,7 +60,7 @@ pub fn main() {
                     ["help"] => println!("{} : {}\n", "command info".yellow(), "`exit` (or `quit`), `clear`, `print <something>`, `load <filename>` is expected, give a try with `help <command>`"),
                     ["help", command] => match command {
                         "exit" | "quit" => println!("{} : {}\n", "command info".yellow(), "to exit the REPL"),
-                        "print" => println!("{} : {}\n", "command info".yellow(), "to print some valuable information, as which `(typed-)ast`, `(typed-)code`, `symbols` is expected"),
+                        "print" => println!("{} : {}\n", "command info".yellow(), "to print some valuable information, as which `(typed-)ast`, `(typed-)code`, `symbols`, `types` is expected"),
                         "clear" => println!("{} : {}\n", "command info".yellow(), "to clear all input, including input file"),
                         "load" => println!("{} : {}\n", "command info".yellow(), "to load a ichigo-lang code file according to a filename"),
                         _ => println!("{} : {}\n", "command error".red(), "the given command is not found")
@@ -106,7 +107,12 @@ fn analysis_ast(optional_ast : parser::ParseResult<ast::Main>,
                 },
                 Err(e) => println!("{} : {}\n", "type error".red(), e)
             }
-            println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols);
+            if matches.is_present("print_symbols") {
+                println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols);
+            }
+            if matches.is_present("print_types") {
+                println!("{:6} : {:?}\n", "types".yellow(), checker.types);
+            }
         },
         Err(e) => println!("{} : {}\n", "parse error".red(), e)
     }

@@ -19,3 +19,9 @@ args:
     - print_ast_with_generated_code:
         long: print-ast-generated-code
         help: prints generated code for each printed AST
+    - print_symbols:
+        long: print-symbols
+        help: prints defined symbols for each input code segment
+    - print_types:
+        long: print-types
+        help: prints defined types for each input code segment
