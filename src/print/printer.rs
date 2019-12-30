@@ -1,11 +1,11 @@
 use crate::syntax::ast::*;
 
 pub fn print(ast : Main) -> String {
-    print_main(ast)
+    print_main(ast, 0)
 }
 
-fn print_main(node : Main) -> String {
-    node.into_iter().map(|n| print_bind(n, 0)).collect::<Vec<_>>().join("\n")
+fn print_main(node : Main, layer : usize) -> String {
+    node.into_iter().map(|n| print_bind(n, layer)).collect::<Vec<_>>().join("\n")
 }
 
 fn print_bind(node : Bind, layer : usize) -> String {
