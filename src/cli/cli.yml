@@ -5,7 +5,7 @@ about: A simple CLI for ichigo-lang interpreter
 args:
     - INPUT:
         multiple: true
-        help: sets the input file to use
+        help: sets some ichigo-lang files for input
     - interactive_mode:
         short: i
         long: interactive
