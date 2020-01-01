@@ -3,7 +3,8 @@ mod check;
 mod eval;
 mod print;
 
-extern crate clap;
+#[macro_use]
+extern crate maplit;
 
 mod cli;
 

@@ -65,8 +65,6 @@ fn test_example() {
 
     assert_eq!(
         checker.types,
-        vec![Ident("ℕ".to_string()), Ident("ℕ𝓁".to_string())]
-            .into_iter()
-            .collect()
+        hashset! {Ident("ℕ".to_string()), Ident("ℕ𝓁".to_string())}
     );
 }
