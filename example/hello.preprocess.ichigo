@@ -1,0 +1,22 @@
+\BbbN = \sigma {
+    0    : \BbbN
+    1+   : \BbbN \to \BbbN
+}
+
++ = \lambda x : \BbbN . \lambda { 
+    1+ y . 1+ (+ x y)
+    0    . x
+}
+
+\BbbN\mscrl = \sigma {
+    \emptyset  : \BbbN\mscrl
+    ++ : \BbbN \to \BbbN\mscrl \to \BbbN\mscrl
+}
+
+take = \lambda {
+    1+ n . \lambda {
+            \emptyset       . \emptyset
+            ++ x xs . ++ x (take n xs)
+    }
+    0    . \lambda x . \emptyset
+}
