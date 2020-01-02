@@ -2,14 +2,16 @@ use crate::check::type_checker::*;
 use crate::syntax::ast::*;
 use crate::syntax::parser;
 
+use std::fs;
+
 #[test]
 fn test_example() {
     let (checker, typed_ast) =
-        TypeChecker::from_check(parser::parse_file("example/hello.ichigo").unwrap());
+        TypeChecker::from_check(parser::parse_str(fs::read_to_string("example/hello.ichigo").unwrap().as_str()).unwrap());
 
     assert_eq!(
         typed_ast.unwrap(),
-        parser::parse_file("example/hello.typed.ichigo").unwrap()
+        parser::parse_str(fs::read_to_string("example/hello.typed.ichigo").unwrap().as_str()).unwrap()
     );
 
     assert_eq!(

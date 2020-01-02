@@ -22,12 +22,12 @@ separator_mark = _{ ";" }
 
 trivial_mark_cat = { paren_cat | brace_cat | comment_mark | separator_mark }
 
-lambda_mark = _{ "λ" | "\\" }
+lambda_mark = _{ "λ" }
 pattern_mark = _{ "." }
 typed_mark = _{ ":" }
 
 map_mark = _{ "→" | "->" }
-sum_mark = _{ "σ" | "/" }
+sum_mark = _{ "σ" }
 
 bind_mark = _{ "=" }
 

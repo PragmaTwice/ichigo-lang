@@ -1,11 +1,13 @@
+#[macro_use]
+extern crate maplit;
+#[macro_use]
+extern crate lazy_static;
+
 mod syntax;
 mod check;
 mod eval;
 mod print;
-
-#[macro_use]
-extern crate maplit;
-
+mod preprocess;
 mod cli;
 
 #[cfg(test)]
