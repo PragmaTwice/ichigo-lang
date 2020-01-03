@@ -92,9 +92,7 @@ fn analysis_code(code : &str,
                matches: &ArgMatches) {
     match unicode_coverter::convert(code) {
         Ok(preprocessed_code) => {
-            let optional_ast = parser::parse_str(preprocessed_code.as_str());
-
-            match optional_ast {
+            match parser::parse_str(preprocessed_code.as_str()) {
                 Ok(ast_part) => {
                     if matches.is_present("print_untyped_ast") {
                         println!("{:6} : {:?}\n", "untyped".yellow(), ast_part);
