@@ -6,7 +6,7 @@ use std::fs;
 fn test_example() {
     assert_eq!(
         unicode_coverter::convert(
-            fs::read_to_string("example/hello.preprocess.ichigo")
+            fs::read_to_string("example/hello.ascii.ichigo")
                 .unwrap()
                 .as_str()
         )
