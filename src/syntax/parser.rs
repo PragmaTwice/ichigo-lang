@@ -1,7 +1,6 @@
 use pest::Parser;
 use pest_derive::Parser;
 use pest::iterators::Pair;
-use std::fs;
 
 use super::ast::*;
 
@@ -10,13 +9,6 @@ use super::ast::*;
 struct IchigoParser;
 
 pub type ParseResult <Node> = Result<Node, String>;
-
-pub fn parse_file(filename: &str) -> ParseResult<Main> {
-    match fs::read_to_string(filename) {
-        Ok(o) => parse_str(o.as_str()),
-        Err(e) => Err(e.to_string())
-    }
-}
 
 pub fn parse_str(input: &str) -> ParseResult<Main> {
     match IchigoParser::parse(Rule::main, input) {

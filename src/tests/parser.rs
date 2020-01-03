@@ -1,10 +1,12 @@
 use crate::syntax::ast::*;
 use crate::syntax::parser;
 
+use std::fs;
+
 #[test]
 fn test_example() {
     assert_eq!(
-        parser::parse_file("example/hello.ichigo"),
+        parser::parse_str(fs::read_to_string("example/hello.ichigo").unwrap().as_str()),
         Ok(vec![
             Bind::Type(
                 Ident("ℕ".to_string(),),
