@@ -72,16 +72,17 @@ impl CLI {
 
     fn interactive_loop(&mut self) {
         println!("turning to interactive mode...");
-        println!("{} : {}\n", "hint".yellow(), "command starting with `:` or ichigo-lang code is expected, both of which should be end by an EOF");
+        println!(
+            "{} : {}\n",
+            "hint".yellow(),
+            "command starting with `:` or ichigo-lang code is expected"
+        );
 
         loop {
             print!("\n{}", "> ".green());
             let _ = stdout().flush();
 
-            let mut input_string = String::new();
-            stdin()
-                .read_to_string(&mut input_string)
-                .expect("did not enter a correct string");
+            let input_string = CLI::input_code();
 
             let trimed_input_string = input_string.trim();
             if trimed_input_string.starts_with(":") {
@@ -125,6 +126,34 @@ impl CLI {
         }
 
         println!("bye.");
+    }
+
+    fn input_code() -> String {
+        let mut input_string = String::new();
+
+        while match stdin().read_line(&mut input_string) {
+            Ok(0) => false,
+            Err(e) => {
+                println!("{} : {}\n", "io error".red(), e);
+                false
+            }
+
+            _ => {
+                let mut end_count = 0;
+
+                for ch in input_string.chars() {
+                    if ch == '{' {
+                        end_count += 1
+                    } else if ch == '}' {
+                        end_count -= 1
+                    }
+                }
+
+                end_count > 0
+            }
+        } {}
+
+        input_string
     }
 
     fn analysis_code(&mut self, code: &str) {
