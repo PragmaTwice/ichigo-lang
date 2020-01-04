@@ -1,3 +1,5 @@
+use lazy_static::lazy_static;
+use maplit::hashmap;
 use std::collections::HashMap;
 
 lazy_static! {

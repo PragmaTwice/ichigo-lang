@@ -1,4 +1,5 @@
 use super::unicode_symbols::UNICODE_SYMBOLS;
+use lazy_static::lazy_static;
 use regex::Regex;
 
 pub fn convert(input: &str) -> Result<String, String> {

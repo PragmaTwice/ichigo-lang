@@ -1,8 +1,3 @@
-#[macro_use]
-extern crate maplit;
-#[macro_use]
-extern crate lazy_static;
-
 mod check;
 mod cli;
 mod eval;
@@ -13,6 +8,8 @@ mod syntax;
 #[cfg(test)]
 mod tests;
 
+use cli::cli::CLI;
+
 fn main() {
-    cli::cli::main();
+    CLI::new().main()
 }

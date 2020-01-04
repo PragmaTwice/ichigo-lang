@@ -2,6 +2,7 @@ use crate::check::type_checker::*;
 use crate::syntax::ast::*;
 use crate::syntax::parser;
 
+use maplit::hashset;
 use std::fs;
 
 #[test]
