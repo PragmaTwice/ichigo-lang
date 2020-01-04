@@ -3,12 +3,12 @@ extern crate maplit;
 #[macro_use]
 extern crate lazy_static;
 
-mod syntax;
 mod check;
-mod eval;
-mod print;
-mod preprocess;
 mod cli;
+mod eval;
+mod preprocess;
+mod print;
+mod syntax;
 
 #[cfg(test)]
 mod tests;

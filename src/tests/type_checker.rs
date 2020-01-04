@@ -6,12 +6,18 @@ use std::fs;
 
 #[test]
 fn test_example() {
-    let (checker, typed_ast) =
-        TypeChecker::from_check(parser::parse_str(fs::read_to_string("example/hello.ichigo").unwrap().as_str()).unwrap());
+    let (checker, typed_ast) = TypeChecker::from_check(
+        parser::parse_str(fs::read_to_string("example/hello.ichigo").unwrap().as_str()).unwrap(),
+    );
 
     assert_eq!(
         typed_ast.unwrap(),
-        parser::parse_str(fs::read_to_string("example/hello.typed.ichigo").unwrap().as_str()).unwrap()
+        parser::parse_str(
+            fs::read_to_string("example/hello.typed.ichigo")
+                .unwrap()
+                .as_str()
+        )
+        .unwrap()
     );
 
     assert_eq!(

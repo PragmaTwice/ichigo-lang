@@ -1,6 +1,6 @@
+use pest::iterators::Pair;
 use pest::Parser;
 use pest_derive::Parser;
-use pest::iterators::Pair;
 
 use super::ast::*;
 
@@ -8,12 +8,12 @@ use super::ast::*;
 #[grammar = "syntax/grammar.pest"]
 struct IchigoParser;
 
-pub type ParseResult <Node> = Result<Node, String>;
+pub type ParseResult<Node> = Result<Node, String>;
 
 pub fn parse_str(input: &str) -> ParseResult<Main> {
     match IchigoParser::parse(Rule::main, input) {
         Ok(o) => Ok(parse_main(o.clone().next().unwrap())),
-        Err(e) => Err(e.to_string())
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -23,8 +23,8 @@ fn parse_main(pair: Pair<Rule>) -> Main {
             .into_inner()
             .filter_map(|inner_pair| parse_bind(inner_pair))
             .collect(),
-        
-        _ => unreachable!()
+
+        _ => unreachable!(),
     }
 }
 
@@ -32,7 +32,7 @@ fn parse_ident(pair: Pair<Rule>) -> Ident {
     match pair.as_rule() {
         Rule::ident => Ident(pair.as_str().to_owned()),
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -47,13 +47,13 @@ fn parse_bind(pair: Pair<Rule>) -> Option<Bind> {
                 Rule::expr => Bind::Expr(ident, Box::new(parse_expr(binded))),
                 Rule::sum => Bind::Type(ident, Box::new(parse_sum(binded))),
 
-                _ => unreachable!()
+                _ => unreachable!(),
             })
-        },
+        }
 
         Rule::EOI => None,
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -67,20 +67,20 @@ fn parse_expr(pair: Pair<Rule>) -> Expr {
                 Rule::typed => parse_typed(inner),
                 Rule::atom => parse_expr(inner),
 
-                _ => unreachable!()
+                _ => unreachable!(),
             }
-        },
+        }
         Rule::atom => {
             let inner = pair.into_inner().peek().unwrap();
             match inner.as_rule() {
                 Rule::expr => parse_expr(inner),
                 Rule::ident => Expr::Var(parse_ident(inner)),
 
-                _ => unreachable!()
+                _ => unreachable!(),
             }
-        },
+        }
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -98,24 +98,24 @@ fn parse_lambda(pair: Pair<Rule>) -> Expr {
                                 let param = innererer.next().unwrap();
                                 let expr = innererer.next().unwrap();
 
-                                patterns.push(Pattern{
-                                    param: Box::new(parse_expr(param)), 
-                                    expr: Box::new(parse_expr(expr))
+                                patterns.push(Pattern {
+                                    param: Box::new(parse_expr(param)),
+                                    expr: Box::new(parse_expr(expr)),
                                 });
-                            },
+                            }
 
-                            _ => unreachable!()
+                            _ => unreachable!(),
                         }
                     }
 
                     Expr::Lambda(patterns)
-                },
+                }
 
-                _ => unreachable!()
+                _ => unreachable!(),
             }
-        },
+        }
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -125,13 +125,12 @@ fn parse_apply(pair: Pair<Rule>) -> Expr {
             let mut inner = pair.into_inner();
             let first = inner.next().unwrap();
 
-            inner.fold(parse_expr(first), |acc, x| Expr::Apply(
-                Box::new(acc), 
-                Box::new(parse_expr(x))
-            ))
-        },
+            inner.fold(parse_expr(first), |acc, x| {
+                Expr::Apply(Box::new(acc), Box::new(parse_expr(x)))
+            })
+        }
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -142,39 +141,35 @@ fn parse_typed(pair: Pair<Rule>) -> Expr {
             let expr = inner.next().unwrap();
             let type_ = inner.next().unwrap();
 
-            Expr::Typed(
-                Box::new(parse_expr(expr)), 
-                Box::new(parse_type(type_))
-            )
-        },
+            Expr::Typed(Box::new(parse_expr(expr)), Box::new(parse_type(type_)))
+        }
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
 fn parse_type(pair: Pair<Rule>) -> Type {
-
     match pair.as_rule() {
-        Rule::type_ => {   
+        Rule::type_ => {
             let inner = pair.into_inner().peek().unwrap();
             match inner.as_rule() {
                 Rule::map => parse_map(inner),
                 Rule::type_atom => parse_type(inner),
 
-                _ => unreachable!()
+                _ => unreachable!(),
             }
-        },
+        }
         Rule::type_atom => {
             let inner = pair.into_inner().peek().unwrap();
             match inner.as_rule() {
                 Rule::ident => Type::Var(parse_ident(inner)),
                 Rule::type_ => parse_type(inner),
 
-                _ => unreachable!()
+                _ => unreachable!(),
             }
-        },
+        }
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -185,15 +180,12 @@ fn parse_map(pair: Pair<Rule>) -> Type {
             let first = inner.next().unwrap();
             let second = inner.next();
             match second {
-                Some(x) => Type::Map(
-                    Box::new(parse_type(first)), 
-                    Box::new(parse_map(x))
-                ),
-                None => parse_type(first)
+                Some(x) => Type::Map(Box::new(parse_type(first)), Box::new(parse_map(x))),
+                None => parse_type(first),
             }
-        },
+        }
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -201,25 +193,27 @@ fn parse_sum(pair: Pair<Rule>) -> Type {
     match pair.as_rule() {
         Rule::sum => {
             let mut instances = Vec::new();
-            pair.into_inner().peek().unwrap().into_inner().for_each(|p| {
-                match p.as_rule() {
-                    Rule::instance => {
-                        let mut inner = p.into_inner();
-                        let ident = inner.next().unwrap();
-                        let type_ = inner.next().unwrap();
+            pair.into_inner()
+                .peek()
+                .unwrap()
+                .into_inner()
+                .for_each(|p| {
+                    match p.as_rule() {
+                        Rule::instance => {
+                            let mut inner = p.into_inner();
+                            let ident = inner.next().unwrap();
+                            let type_ = inner.next().unwrap();
 
-                        instances.push(Instance(
-                            parse_ident(ident),
-                            Box::new(parse_type(type_))
-                        ));
-                    },
+                            instances
+                                .push(Instance(parse_ident(ident), Box::new(parse_type(type_))));
+                        }
 
-                    _ => unreachable!()
-                };
-            });
+                        _ => unreachable!(),
+                    };
+                });
             Type::Sum(instances)
-        },
+        }
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }

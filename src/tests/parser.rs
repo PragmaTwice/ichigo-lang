@@ -99,7 +99,6 @@ fn test_example() {
                                     Box::new(Expr::Apply(
                                         Box::new(Expr::Var(Ident("++".to_string()))),
                                         Box::new(Expr::Var(Ident("x".to_string())))
-
                                     )),
                                     Box::new(Expr::Apply(
                                         Box::new(Expr::Apply(

@@ -1,12 +1,12 @@
-use crate::syntax::{parser, ast};
 use crate::check::type_checker;
-use crate::print::printer;
 use crate::preprocess::unicode_coverter;
+use crate::print::printer;
+use crate::syntax::{ast, parser};
 
-use colored::*;
 use clap::*;
-use std::io::*;
+use colored::*;
 use std::fs;
+use std::io::*;
 
 pub fn main() {
     let yaml = load_yaml!("cli.yml");
@@ -18,12 +18,18 @@ pub fn main() {
     let mut untyped_ast = ast::Main::new();
     let mut typed_ast = ast::Main::new();
 
-    for  input_file in input_files {
+    for input_file in input_files {
         println!("processing '{}'...\n", input_file);
 
         match fs::read_to_string(input_file) {
-            Ok(o) => analysis_code(o.as_str(), &mut checker, &mut untyped_ast, &mut typed_ast, &matches),
-            Err(e) => println!("{} : {}\n", "io error".red(), e)
+            Ok(o) => analysis_code(
+                o.as_str(),
+                &mut checker,
+                &mut untyped_ast,
+                &mut typed_ast,
+                &matches,
+            ),
+            Err(e) => println!("{} : {}\n", "io error".red(), e),
         }
     }
 
@@ -36,11 +42,15 @@ pub fn main() {
             let _ = stdout().flush();
 
             let mut input_string = String::new();
-            stdin().read_to_string(&mut input_string).expect("did not enter a correct string");
-            
+            stdin()
+                .read_to_string(&mut input_string)
+                .expect("did not enter a correct string");
+
             let trimed_input_string = input_string.trim();
             if trimed_input_string.starts_with(":") {
-                let input_command = (&trimed_input_string[1..]).split_whitespace().collect::<Vec<_>>();
+                let input_command = (&trimed_input_string[1..])
+                    .split_whitespace()
+                    .collect::<Vec<_>>();
                 match input_command[..] {
                     ["exit"] | ["quit"] => break,
                     ["print", printed] => match printed {
@@ -76,54 +86,67 @@ pub fn main() {
                 }
                 continue;
             }
-            
-            analysis_code(input_string.as_str(), &mut checker, &mut untyped_ast, &mut typed_ast, &matches);
+
+            analysis_code(
+                input_string.as_str(),
+                &mut checker,
+                &mut untyped_ast,
+                &mut typed_ast,
+                &matches,
+            );
         }
 
         println!("bye.");
     }
-    
 }
 
-fn analysis_code(code : &str, 
-               checker : &mut type_checker::TypeChecker,
-               untyped_ast : &mut ast::Main,
-               typed_ast : &mut ast::Main,
-               matches: &ArgMatches) {
+fn analysis_code(
+    code: &str,
+    checker: &mut type_checker::TypeChecker,
+    untyped_ast: &mut ast::Main,
+    typed_ast: &mut ast::Main,
+    matches: &ArgMatches,
+) {
     match unicode_coverter::convert(code) {
-        Ok(preprocessed_code) => {
-            match parser::parse_str(preprocessed_code.as_str()) {
-                Ok(ast_part) => {
-                    if matches.is_present("print_untyped_ast") {
-                        println!("{:6} : {:?}\n", "untyped".yellow(), ast_part);
-                        if matches.is_present("print_ast_with_generated_code") {
-                            println!("{:6} : \n{}\n", "code".yellow(), printer::print(ast_part.clone()));
+        Ok(preprocessed_code) => match parser::parse_str(preprocessed_code.as_str()) {
+            Ok(ast_part) => {
+                if matches.is_present("print_untyped_ast") {
+                    println!("{:6} : {:?}\n", "untyped".yellow(), ast_part);
+                    if matches.is_present("print_ast_with_generated_code") {
+                        println!(
+                            "{:6} : \n{}\n",
+                            "code".yellow(),
+                            printer::print(ast_part.clone())
+                        );
+                    }
+                }
+                let typed_result = checker.check(ast_part.clone());
+                match typed_result {
+                    Ok(mut typed_ast_part) => {
+                        untyped_ast.append(&mut ast_part.clone());
+                        typed_ast.append(&mut typed_ast_part);
+                        if matches.is_present("print_typed_ast") {
+                            println!("{:6} : {:?}\n", "typed".yellow(), typed_ast);
+                            if matches.is_present("print_ast_with_generated_code") {
+                                println!(
+                                    "{:6} : \n{}\n",
+                                    "code".yellow(),
+                                    printer::print(typed_ast.clone())
+                                );
+                            }
                         }
                     }
-                    let typed_result = checker.check(ast_part.clone());
-                    match typed_result {
-                        Ok(mut typed_ast_part) => {
-                            untyped_ast.append(&mut ast_part.clone());
-                            typed_ast.append(&mut typed_ast_part);
-                            if matches.is_present("print_typed_ast") {
-                                println!("{:6} : {:?}\n", "typed".yellow(), typed_ast);
-                                if matches.is_present("print_ast_with_generated_code") {
-                                    println!("{:6} : \n{}\n", "code".yellow(), printer::print(typed_ast.clone()));
-                                }
-                            }
-                        },
-                        Err(e) => println!("{} : {}\n", "type error".red(), e)
-                    }
-                    if matches.is_present("print_symbols") {
-                        println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols);
-                    }
-                    if matches.is_present("print_types") {
-                        println!("{:6} : {:?}\n", "types".yellow(), checker.types);
-                    }
-                },
-                Err(e) => println!("{} : {}\n", "parse error".red(), e)
+                    Err(e) => println!("{} : {}\n", "type error".red(), e),
+                }
+                if matches.is_present("print_symbols") {
+                    println!("{:6} : {:?}\n", "symbols".yellow(), checker.symbols);
+                }
+                if matches.is_present("print_types") {
+                    println!("{:6} : {:?}\n", "types".yellow(), checker.types);
+                }
             }
-        }
-        Err(e) => println!("{} : {}\n", "preprocess error".red(), e)
+            Err(e) => println!("{} : {}\n", "parse error".red(), e),
+        },
+        Err(e) => println!("{} : {}\n", "preprocess error".red(), e),
     }
 }

@@ -11,7 +11,7 @@ pub fn convert(input: &str) -> Result<String, String> {
 
     for cap in UNICODE_SYMBOL_MATCHER.captures_iter(input) {
         if cap[1].is_empty() {
-            return Err(format!("a unicode symbol name is expected after `\\`"))
+            return Err(format!("a unicode symbol name is expected after `\\`"));
         }
 
         match UNICODE_SYMBOLS.get(&cap[1]) {
