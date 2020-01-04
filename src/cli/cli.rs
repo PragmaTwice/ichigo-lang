@@ -19,9 +19,11 @@ struct Opt {
     /// sets some ichigo-lang files for input
     #[structopt(name = "INPUT")]
     input_files: Vec<String>,
+
     /// turns to interactive mode (REPL), ':help' for some useful information
     #[structopt(short, long)]
     interactive: bool,
+
     /// prints untyped AST for each input code segment
     #[structopt(long)]
     print_ast: bool,
