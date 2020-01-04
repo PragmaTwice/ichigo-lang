@@ -13,20 +13,20 @@ type CheckResult<Node> = Result<Node, String>;
 type ParamNumStack = Vec<i32>;
 
 impl Symbol {
-    fn new_without_type(id: &Ident) -> Symbol {
-        Symbol {
+    fn new_without_type(id: &Ident) -> Self {
+        Self {
             id: id.clone(),
             optional_type: None,
         }
     }
 
-    fn from_instance(instance: &Instance) -> Symbol {
+    fn from_instance(instance: &Instance) -> Self {
         let Instance(id, type_) = instance;
-        Symbol::new_with_box(id, type_)
+        Self::new_with_box(id, type_)
     }
 
-    fn new_with_box(id: &Ident, type_: &Box<Type>) -> Symbol {
-        Symbol {
+    fn new_with_box(id: &Ident, type_: &Box<Type>) -> Self {
+        Self {
             id: id.clone(),
             optional_type: Some(type_.as_ref().clone()),
         }
@@ -42,7 +42,7 @@ pub struct TypeChecker {
 
 impl TypeChecker {
     pub fn new() -> Self {
-        TypeChecker {
+        Self {
             symbols: SymbolStack::new(),
             types: TypeSet::new(),
             param_num_stack: ParamNumStack::new(),
@@ -55,7 +55,7 @@ impl TypeChecker {
 
     #[allow(dead_code)]
     pub fn from_check(ast: Main) -> (Self, CheckResult<Main>) {
-        let mut type_checker = TypeChecker::new();
+        let mut type_checker = Self::new();
         let typed_ast = type_checker.check(ast);
         (type_checker, typed_ast)
     }
@@ -164,7 +164,7 @@ impl TypeChecker {
         match node {
             Expr::Apply(f, x) => {
                 let try_typed_f = match self.check_expr(f.as_ref().clone(), None, in_param) {
-                    Ok(o) => match &TypeChecker::extract_type(&o) {
+                    Ok(o) => match &Self::extract_type(&o) {
                         Type::Map(lhs, _) => Some(lhs.as_ref().clone()),
 
                         _ => None,
@@ -176,7 +176,7 @@ impl TypeChecker {
                     f.as_ref().clone(),
                     match type_constraint {
                         Some(f) => Some(Type::Map(
-                            Box::new(TypeChecker::extract_type(&typed_x)),
+                            Box::new(Self::extract_type(&typed_x)),
                             Box::new(f),
                         )),
                         None => None,
@@ -184,8 +184,8 @@ impl TypeChecker {
                     in_param,
                 )?;
                 match {
-                    let f = &TypeChecker::extract_type(&typed_f);
-                    let x = &TypeChecker::extract_type(&typed_x);
+                    let f = &Self::extract_type(&typed_f);
+                    let x = &Self::extract_type(&typed_x);
                     match f {
                         Type::Map(lhs, rhs) => {
                             if lhs.as_ref() == x {
@@ -215,12 +215,8 @@ impl TypeChecker {
                                 let checked_pattern =
                                     self.check_pattern(n.clone(), lambda_type.clone())?;
                                 let pattern_type = Type::Map(
-                                    Box::new(
-                                        TypeChecker::extract_type(&checked_pattern.param).clone(),
-                                    ),
-                                    Box::new(
-                                        TypeChecker::extract_type(&checked_pattern.expr).clone(),
-                                    ),
+                                    Box::new(Self::extract_type(&checked_pattern.param).clone()),
+                                    Box::new(Self::extract_type(&checked_pattern.expr).clone()),
                                 );
                                 match &lambda_type {
                                     Some(lam_t) => {
@@ -259,7 +255,7 @@ impl TypeChecker {
                     Some(type_.as_ref().clone()),
                     in_param,
                 )?;
-                if &TypeChecker::extract_type(&checked_expr) == type_.as_ref() {
+                if &Self::extract_type(&checked_expr) == type_.as_ref() {
                     Ok(checked_expr)
                 } else {
                     Err(format!(

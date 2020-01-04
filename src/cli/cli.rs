@@ -49,8 +49,8 @@ pub struct CLI {
 }
 
 impl CLI {
-    pub fn new() -> CLI {
-        CLI {
+    pub fn new() -> Self {
+        Self {
             checker: type_checker::TypeChecker::new(),
             untyped_ast: ast::Main::new(),
             typed_ast: ast::Main::new(),
@@ -82,7 +82,7 @@ impl CLI {
             print!("\n{}", "> ".green());
             let _ = stdout().flush();
 
-            let input_string = CLI::input_code();
+            let input_string = Self::input_code();
 
             let trimed_input_string = input_string.trim();
             if trimed_input_string.starts_with(":") {
