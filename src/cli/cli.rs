@@ -5,7 +5,7 @@ use crate::syntax::{ast, parser};
 
 use clap::*;
 use colored::*;
-use std::fs;
+use std::fs::*;
 use std::io::*;
 
 pub fn main() {
@@ -21,16 +21,13 @@ pub fn main() {
     for input_file in input_files {
         println!("processing '{}'...\n", input_file);
 
-        match fs::read_to_string(input_file) {
-            Ok(o) => analysis_code(
-                o.as_str(),
-                &mut checker,
-                &mut untyped_ast,
-                &mut typed_ast,
-                &matches,
-            ),
-            Err(e) => println!("{} : {}\n", "io error".red(), e),
-        }
+        analysis_code(
+            input_file,
+            &mut checker,
+            &mut untyped_ast,
+            &mut typed_ast,
+            &matches,
+        )
     }
 
     if matches.is_present("interactive_mode") {
@@ -68,10 +65,7 @@ pub fn main() {
                         typed_ast = ast::Main::new();
                     },
                     ["load", filename] => {
-                        match fs::read_to_string(filename) {
-                            Ok(o) => analysis_code(o.as_str(), &mut checker, &mut untyped_ast, &mut typed_ast, &matches),
-                            Err(e) => println!("{} : {}\n", "io error".red(), e)
-                        }
+                        analysis_file(filename, &mut checker, &mut untyped_ast, &mut typed_ast, &matches)
                     }
                     ["help"] => println!("{} : {}\n", "command info".yellow(), "`exit` (or `quit`), `clear`, `print <something>`, `load <filename>` is expected, give a try with `help <command>`"),
                     ["help", command] => match command {
@@ -148,5 +142,18 @@ fn analysis_code(
             Err(e) => println!("{} : {}\n", "parse error".red(), e),
         },
         Err(e) => println!("{} : {}\n", "preprocess error".red(), e),
+    }
+}
+
+fn analysis_file(
+    filename: &str,
+    checker: &mut type_checker::TypeChecker,
+    untyped_ast: &mut ast::Main,
+    typed_ast: &mut ast::Main,
+    matches: &ArgMatches,
+) {
+    match read_to_string(filename) {
+        Ok(o) => analysis_code(o.as_str(), checker, untyped_ast, typed_ast, &matches),
+        Err(e) => println!("{} : {}\n", "io error".red(), e),
     }
 }
