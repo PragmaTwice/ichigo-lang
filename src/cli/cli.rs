@@ -31,24 +31,34 @@ pub fn main() {
     }
 
     if matches.is_present("interactive_mode") {
-        println!("turning to interactive mode...");
-        println!("{} : {}\n", "hint".yellow(), "command starting with `:` or ichigo-lang code is expected, both of which should be end by an EOF");
+        interactive_loop(&mut checker, &mut untyped_ast, &mut typed_ast, &matches)
+    }
+}
 
-        loop {
-            print!("\n{}", "> ".green());
-            let _ = stdout().flush();
+fn interactive_loop(
+    checker: &mut type_checker::TypeChecker,
+    untyped_ast: &mut ast::Main,
+    typed_ast: &mut ast::Main,
+    matches: &ArgMatches,
+) {
+    println!("turning to interactive mode...");
+    println!("{} : {}\n", "hint".yellow(), "command starting with `:` or ichigo-lang code is expected, both of which should be end by an EOF");
 
-            let mut input_string = String::new();
-            stdin()
-                .read_to_string(&mut input_string)
-                .expect("did not enter a correct string");
+    loop {
+        print!("\n{}", "> ".green());
+        let _ = stdout().flush();
 
-            let trimed_input_string = input_string.trim();
-            if trimed_input_string.starts_with(":") {
-                let input_command = (&trimed_input_string[1..])
-                    .split_whitespace()
-                    .collect::<Vec<_>>();
-                match input_command[..] {
+        let mut input_string = String::new();
+        stdin()
+            .read_to_string(&mut input_string)
+            .expect("did not enter a correct string");
+
+        let trimed_input_string = input_string.trim();
+        if trimed_input_string.starts_with(":") {
+            let input_command = (&trimed_input_string[1..])
+                .split_whitespace()
+                .collect::<Vec<_>>();
+            match input_command[..] {
                     ["exit"] | ["quit"] => break,
                     ["print", printed] => match printed {
                         "typed-ast" => println!("{:?}\n", typed_ast),
@@ -60,12 +70,12 @@ pub fn main() {
                         _ => println!("{} : {}\n", "command error".red(), "the provided argument to print is unknown, try `help print`")
                     },
                     ["clear"] => {
-                        checker = type_checker::TypeChecker::new();
-                        untyped_ast = ast::Main::new();
-                        typed_ast = ast::Main::new();
+                        *checker = type_checker::TypeChecker::new();
+                        *untyped_ast = ast::Main::new();
+                        *typed_ast = ast::Main::new();
                     },
                     ["load", filename] => {
-                        analysis_file(filename, &mut checker, &mut untyped_ast, &mut typed_ast, &matches)
+                        analysis_file(filename, checker, untyped_ast, typed_ast, &matches)
                     }
                     ["help"] => println!("{} : {}\n", "command info".yellow(), "`exit` (or `quit`), `clear`, `print <something>`, `load <filename>` is expected, give a try with `help <command>`"),
                     ["help", command] => match command {
@@ -78,20 +88,19 @@ pub fn main() {
                     [] => println!("{} : {}\n", "command error".red(), "a command follow `:` is expected but not provided, try `help`"),
                     _ => println!("{} : {}\n", "command error".red(), "the given command is not found, try `help`")
                 }
-                continue;
-            }
-
-            analysis_code(
-                input_string.as_str(),
-                &mut checker,
-                &mut untyped_ast,
-                &mut typed_ast,
-                &matches,
-            );
+            continue;
         }
 
-        println!("bye.");
+        analysis_code(
+            input_string.as_str(),
+            checker,
+            untyped_ast,
+            typed_ast,
+            &matches,
+        );
     }
+
+    println!("bye.");
 }
 
 fn analysis_code(
