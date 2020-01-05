@@ -29,13 +29,13 @@ impl Symbol {
         }
     }
 
-    fn from_instance(instance: &Instance, type_checker: &TypeChecker) -> Self {
+    fn from_instance(instance: &Instance, from_type: &Ident) -> Self {
         let Instance(id, type_) = instance;
 
         Self {
             id: id.clone(),
             optional_type: Some(type_.as_ref().clone()),
-            instance_from: Some(type_checker.types.last().unwrap().clone()),
+            instance_from: Some(from_type.clone()),
         }
     }
 }
@@ -161,8 +161,10 @@ impl TypeChecker {
         let checked_type = self.check_type(instance.1.as_ref().clone())?;
         let checked_instance = Instance(instance.0.clone(), Box::new(checked_type));
 
-        self.symbols
-            .push(Symbol::from_instance(&checked_instance, self));
+        self.symbols.push(Symbol::from_instance(
+            &checked_instance,
+            self.types.last().unwrap(),
+        ));
         Ok(checked_instance)
     }
 
@@ -347,9 +349,9 @@ impl TypeChecker {
                     param: Box::new(checked_param),
                     expr: Box::new(checked_expr),
                 }),
-                Err(e) => Err(e)
+                Err(e) => Err(e),
             },
-            Err(e) => Err(e)
+            Err(e) => Err(e),
         };
 
         match self.param_num_stack.pop() {
