@@ -1,34 +1,41 @@
 use crate::syntax::ast::*;
-use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Symbol {
     pub id: Ident,
     pub optional_type: Option<Type>,
+    pub instance_from: Option<Ident>,
 }
 
 type SymbolStack = Vec<Symbol>;
-type TypeSet = HashSet<Ident>;
+type TypeStack = Vec<Ident>;
 type CheckResult<Node> = Result<Node, String>;
 type ParamNumStack = Vec<i32>;
 
 impl Symbol {
-    fn new_without_type(id: &Ident) -> Self {
+    fn new(id: &Ident) -> Self {
         Self {
             id: id.clone(),
             optional_type: None,
+            instance_from: None,
         }
     }
 
-    fn from_instance(instance: &Instance) -> Self {
-        let Instance(id, type_) = instance;
-        Self::new_with_box(id, type_)
+    pub fn new_with_type(id: &Ident, type_: &Type) -> Self {
+        Self {
+            id: id.clone(),
+            optional_type: Some(type_.clone()),
+            instance_from: None,
+        }
     }
 
-    fn new_with_box(id: &Ident, type_: &Box<Type>) -> Self {
+    fn from_instance(instance: &Instance, type_checker: &TypeChecker) -> Self {
+        let Instance(id, type_) = instance;
+
         Self {
             id: id.clone(),
             optional_type: Some(type_.as_ref().clone()),
+            instance_from: Some(type_checker.types.last().unwrap().clone()),
         }
     }
 }
@@ -36,7 +43,7 @@ impl Symbol {
 #[derive(Debug)]
 pub struct TypeChecker {
     pub symbols: SymbolStack,
-    pub types: TypeSet,
+    pub types: TypeStack,
     pub param_num_stack: ParamNumStack,
 }
 
@@ -44,7 +51,7 @@ impl TypeChecker {
     pub fn new() -> Self {
         Self {
             symbols: SymbolStack::new(),
-            types: TypeSet::new(),
+            types: TypeStack::new(),
             param_num_stack: ParamNumStack::new(),
         }
     }
@@ -75,43 +82,46 @@ impl TypeChecker {
     fn check_bind(&mut self, node: Bind, type_constraint: Option<Type>) -> CheckResult<Bind> {
         match node {
             Bind::Expr(id, expr) => {
-                let mut pos = self.symbols.iter().position(|s| s.id == id);
-                match pos {
-                    None => {
-                        self.symbols.push(Symbol::new_without_type(&id));
-                        pos = Some(self.symbols.len() - 1);
-                    }
-                    _ => (),
+                if self.symbols.iter().any(|s| s.id == id) {
+                    return Err(format!("[bind expr] {:?} : redefined symbols", id));
                 }
-                let checked_expr =
-                    self.check_expr(expr.as_ref().clone(), type_constraint, false)?;
-                match &checked_expr {
-                    Expr::Typed(_, type_) => {
-                        let t = type_.as_ref().clone();
-                        match pos {
-                            Some(n) => match self.symbols[n].optional_type {
-                                Some(ref t_) => {
-                                    if t != *t_ {
-                                        return Err(format!(
-                                            "[bind expr] {:?} {:?} : mismatched types",
-                                            id, expr
-                                        ));
-                                    }
-                                }
-                                None => self.symbols[n].optional_type = Some(t),
-                            },
-                            _ => (),
-                        }
-                    }
 
-                    _ => (),
-                }
+                self.symbols.push(Symbol::new(&id));
+
+                let checked_expr =
+                    match self.check_expr(expr.as_ref().clone(), type_constraint, false) {
+                        Ok(o) => o,
+                        Err(e) => {
+                            self.symbols.pop();
+                            return Err(e);
+                        }
+                    };
+
+                let symbol = self.symbols.last_mut().unwrap();
+                let type_ = Self::extract_type(&checked_expr);
+
+                symbol.optional_type = Some(type_);
+
                 Ok(Bind::Expr(id, Box::new(checked_expr)))
             }
             Bind::Type(id, type_) => {
-                self.types.insert(id.clone());
+                if self.types.contains(&id) {
+                    return Err(format!("[bind type] {:?} : redefined types", id));
+                }
 
-                let checked_type = self.check_type(type_.as_ref().clone())?;
+                self.types.push(id.clone());
+
+                let checked_type = match self.check_type(type_.as_ref().clone()) {
+                    Ok(o) => o,
+                    Err(e) => {
+                        let last_type = self.types.pop();
+
+                        self.symbols.retain(|s| s.instance_from != last_type);
+
+                        return Err(e);
+                    }
+                };
+
                 Ok(Bind::Type(id, Box::new(checked_type)))
             }
         }
@@ -151,7 +161,8 @@ impl TypeChecker {
         let checked_type = self.check_type(instance.1.as_ref().clone())?;
         let checked_instance = Instance(instance.0.clone(), Box::new(checked_type));
 
-        self.symbols.push(Symbol::from_instance(&checked_instance));
+        self.symbols
+            .push(Symbol::from_instance(&checked_instance, self));
         Ok(checked_instance)
     }
 
@@ -250,11 +261,11 @@ impl TypeChecker {
                 }
             }
             Expr::Typed(expr, type_) => {
-                let checked_expr = self.check_expr(
-                    expr.as_ref().clone(),
-                    Some(type_.as_ref().clone()),
-                    in_param,
-                )?;
+                let checked_type = self.check_type(type_.as_ref().clone())?;
+
+                let checked_expr =
+                    self.check_expr(expr.as_ref().clone(), Some(checked_type), in_param)?;
+
                 if &Self::extract_type(&checked_expr) == type_.as_ref() {
                     Ok(checked_expr)
                 } else {
@@ -296,10 +307,7 @@ impl TypeChecker {
                     } else {
                         match type_constraint {
                             Some(type_con) => {
-                                self.symbols.push(Symbol {
-                                    id: id.clone(),
-                                    optional_type: Some(type_con.clone()),
-                                });
+                                self.symbols.push(Symbol::new_with_type(&id, &type_con));
 
                                 let last_num = self.param_num_stack.len() - 1;
                                 self.param_num_stack[last_num] += 1;
@@ -332,8 +340,17 @@ impl TypeChecker {
         };
 
         self.param_num_stack.push(0);
-        let checked_param = self.check_expr(node.param.as_ref().clone(), f_type, true)?;
-        let checked_expr = self.check_expr(node.expr.as_ref().clone(), x_type, false)?;
+
+        let result = match self.check_expr(node.param.as_ref().clone(), f_type, true) {
+            Ok(checked_param) => match self.check_expr(node.expr.as_ref().clone(), x_type, false) {
+                Ok(checked_expr) => Ok(Pattern {
+                    param: Box::new(checked_param),
+                    expr: Box::new(checked_expr),
+                }),
+                Err(e) => Err(e)
+            },
+            Err(e) => Err(e)
+        };
 
         match self.param_num_stack.pop() {
             Some(n) => {
@@ -342,11 +359,8 @@ impl TypeChecker {
                 }
             }
             None => (),
-        };
+        }
 
-        Ok(Pattern {
-            param: Box::new(checked_param),
-            expr: Box::new(checked_expr),
-        })
+        result
     }
 }
