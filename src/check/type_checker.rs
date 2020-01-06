@@ -161,6 +161,10 @@ impl TypeChecker {
         let checked_type = self.check_type(instance.1.as_ref().clone())?;
         let checked_instance = Instance(instance.0.clone(), Box::new(checked_type));
 
+        if self.symbols.iter().any(|s| s.id == instance.0.clone()) {
+            return Err(format!("[instance type] {:?} : redefined symbols", instance.0.clone()));
+        }
+
         self.symbols.push(Symbol::from_instance(
             &checked_instance,
             self.types.last().unwrap(),
