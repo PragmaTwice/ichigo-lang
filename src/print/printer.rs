@@ -75,8 +75,8 @@ fn print_instance(node: Instance, layer: usize) -> String {
     format!(
         "{}{} : {}",
         "\t".repeat(layer),
-        print_ident(node.0),
-        print_type(node.1.as_ref().clone(), layer)
+        print_ident(node.id),
+        print_type(node.type_.as_ref().clone(), layer)
     )
 }
 
@@ -90,5 +90,7 @@ fn print_pattern(node: Pattern, layer: usize) -> String {
 }
 
 fn print_ident(ident: Ident) -> String {
-    ident.0.clone()
+    let Ident(string) = ident;
+
+    return string;
 }

@@ -204,8 +204,10 @@ fn parse_sum(pair: Pair<Rule>) -> Type {
                             let ident = inner.next().unwrap();
                             let type_ = inner.next().unwrap();
 
-                            instances
-                                .push(Instance(parse_ident(ident), Box::new(parse_type(type_))));
+                            instances.push(Instance {
+                                id: parse_ident(ident),
+                                type_: Box::new(parse_type(type_)),
+                            });
                         }
 
                         _ => unreachable!(),

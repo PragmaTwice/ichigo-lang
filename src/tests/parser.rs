@@ -11,17 +11,17 @@ fn test_example() {
             Bind::Type(
                 Ident("ℕ".to_string(),),
                 Box::new(Type::Sum(vec![
-                    Instance(
-                        Ident("0".to_string(),),
-                        Box::new(Type::Var(Ident("ℕ".to_string(),),)),
-                    ),
-                    Instance(
-                        Ident("1+".to_string(),),
-                        Box::new(Type::Map(
+                    Instance {
+                        id: Ident("0".to_string(),),
+                        type_: Box::new(Type::Var(Ident("ℕ".to_string(),),)),
+                    },
+                    Instance {
+                        id: Ident("1+".to_string(),),
+                        type_: Box::new(Type::Map(
                             Box::new(Type::Var(Ident("ℕ".to_string(),),)),
                             Box::new(Type::Var(Ident("ℕ".to_string(),),)),
                         )),
-                    ),
+                    },
                 ],)),
             ),
             Bind::Expr(
@@ -58,20 +58,20 @@ fn test_example() {
             Bind::Type(
                 Ident("ℕ𝓁".to_string(),),
                 Box::new(Type::Sum(vec![
-                    Instance(
-                        Ident("∅".to_string(),),
-                        Box::new(Type::Var(Ident("ℕ𝓁".to_string(),),)),
-                    ),
-                    Instance(
-                        Ident("++".to_string(),),
-                        Box::new(Type::Map(
+                    Instance {
+                        id: Ident("∅".to_string(),),
+                        type_: Box::new(Type::Var(Ident("ℕ𝓁".to_string(),),)),
+                    },
+                    Instance {
+                        id: Ident("++".to_string(),),
+                        type_: Box::new(Type::Map(
                             Box::new(Type::Var(Ident("ℕ".to_string(),),)),
                             Box::new(Type::Map(
                                 Box::new(Type::Var(Ident("ℕ𝓁".to_string(),),)),
                                 Box::new(Type::Var(Ident("ℕ𝓁".to_string(),),)),
                             )),
                         )),
-                    ),
+                    },
                 ],)),
             ),
             Bind::Expr(

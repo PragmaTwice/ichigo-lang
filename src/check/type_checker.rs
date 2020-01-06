@@ -30,7 +30,7 @@ impl Symbol {
     }
 
     fn from_instance(instance: &Instance, from_type: &Ident) -> Self {
-        let Instance(id, type_) = instance;
+        let Instance { id, type_ } = instance;
 
         Self {
             id: id.clone(),
@@ -158,11 +158,17 @@ impl TypeChecker {
     }
 
     fn check_instance(&mut self, instance: Instance) -> CheckResult<Instance> {
-        let checked_type = self.check_type(instance.1.as_ref().clone())?;
-        let checked_instance = Instance(instance.0.clone(), Box::new(checked_type));
+        let checked_type = self.check_type(instance.type_.as_ref().clone())?;
+        let checked_instance = Instance {
+            id: instance.id.clone(),
+            type_: Box::new(checked_type),
+        };
 
-        if self.symbols.iter().any(|s| s.id == instance.0.clone()) {
-            return Err(format!("[instance type] {:?} : redefined symbols", instance.0.clone()));
+        if self.symbols.iter().any(|s| s.id == instance.id.clone()) {
+            return Err(format!(
+                "[instance type] {:?} : redefined symbols",
+                instance.id.clone()
+            ));
         }
 
         self.symbols.push(Symbol::from_instance(

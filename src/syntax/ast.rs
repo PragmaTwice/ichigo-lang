@@ -23,7 +23,10 @@ pub enum Type {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Instance(pub Ident, pub Box<Type>);
+pub struct Instance {
+    pub id: Ident,
+    pub type_: Box<Type>,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Bind {
