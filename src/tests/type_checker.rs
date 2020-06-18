@@ -1,3 +1,4 @@
+use crate::check::symbol::*;
 use crate::check::type_checker::*;
 use crate::syntax::ast::*;
 use crate::syntax::parser;
