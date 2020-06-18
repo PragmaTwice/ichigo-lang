@@ -62,7 +62,7 @@ impl CLI {
         for input_file in self.options.input_files.clone() {
             println!("processing '{}'...\n", input_file);
 
-            self.analysis_code(input_file.as_str())
+            self.analysis_file(input_file.as_str())
         }
 
         if self.options.interactive {
